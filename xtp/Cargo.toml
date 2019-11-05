@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 xtp-sys = { path = "../xtp-sys" }
+libc = "0.2"
 
 [lib]
 name = "xtp"

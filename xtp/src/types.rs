@@ -1,26 +1,33 @@
+use xtp_sys::{XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL, XTP_PROTOCOL_TYPE};
+
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPLogLevel {
-    Fatal = 0,
-    Error = 1,
-    Warning = 2,
-    Info = 3,
-    Debug = 4,
-    Trace = 5,
+    Fatal = XTP_LOG_LEVEL::XTP_LOG_LEVEL_FATAL as u32,
+    Error = XTP_LOG_LEVEL::XTP_LOG_LEVEL_ERROR as u32,
+    Warning = XTP_LOG_LEVEL::XTP_LOG_LEVEL_WARNING as u32,
+    Info = XTP_LOG_LEVEL::XTP_LOG_LEVEL_INFO as u32,
+    Debug = XTP_LOG_LEVEL::XTP_LOG_LEVEL_DEBUG as u32,
+    Trace = XTP_LOG_LEVEL::XTP_LOG_LEVEL_TRACE as u32,
 }
 
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPProtocolType {
     /// Use TCP transmission
-    TCP = 1,
+    TCP = XTP_PROTOCOL_TYPE::XTP_PROTOCOL_TCP as u32,
     /// Use UDP transmission (only support market data)
-    UDP = 2,
+    UDP = XTP_PROTOCOL_TYPE::XTP_PROTOCOL_UDP as u32,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPExchangeType {
     /// Shanghai Exchange
-    SH = 1,
+    SH = XTP_EXCHANGE_TYPE::XTP_EXCHANGE_SH as isize,
     /// Shenzhen Exchange
-    SZ = 2,
+    SZ = XTP_EXCHANGE_TYPE::XTP_EXCHANGE_SZ as isize,
     /// Unknown
-    Unknown = 3,
+    Unknown = XTP_EXCHANGE_TYPE::XTP_EXCHANGE_UNKNOWN as isize,
 }
 
 pub enum XTPMarketType {
@@ -223,7 +230,7 @@ pub enum XTPFundTransferType {
 }
 
 /// XTP_FUND_OPER_STATUS柜台资金操作结果
-pub enum XTP_FUND_OPER_STATUS {
+pub enum XTPFundOperStatus {
     /// XTP已收到，正在处理中
     PROCESSING = 0,
     /// 成功
