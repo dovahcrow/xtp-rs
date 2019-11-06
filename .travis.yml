@@ -1,0 +1,8 @@
+language: rust
+rust:
+  - beta
+sudo: false
+env:
+  global:
+    - RUST_LOG=xtp=trace
+    - LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/xtp/bin/linux_centos7
