@@ -64,3 +64,15 @@ pub enum TXTPOrderTypeType {
     XTP_ORDT_ConditionalOrder = XTP_ORDT_ConditionalOrder,
     XTP_ORDT_Swap = XTP_ORDT_Swap,
 }
+
+impl Drop for QuoteSpiStub {
+    fn drop(&mut self) {
+        unsafe { self.destruct() }
+    }
+}
+
+impl Drop for TraderSpiStub {
+    fn drop(&mut self) {
+        unsafe { self.destruct() }
+    }
+}

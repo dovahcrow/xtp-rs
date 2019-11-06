@@ -322,3 +322,9 @@ pub enum XTPOrderType {
 
 pub const XTP_ERR_MSG_LEN: u32 = 124;
 pub const XTP_ACCOUNT_PASSWORD_LEN: u32 = 64;
+
+#[derive(Debug)]
+pub struct XTPRspInfoStruct {
+    pub error_id: i32,
+    pub error_msg: String,
+}
