@@ -19,13 +19,13 @@ fn main() {
     }
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes
-    println!("cargo:rerun-if-changed=src/wrapper.h");
+    println!("cargo:rerun-if-changed=src/wrapper.hpp");
     println!("cargo:rerun-if-changed=src/bridge/bridge.hpp");
 
     let bindings = bindgen::Builder::default()
         // The input header we would like to generate
         // bindings for.
-        .header("src/wrapper.h")
+        .header("src/wrapper.hpp")
         /* // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks)) */
@@ -40,7 +40,6 @@ fn main() {
         /* .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: true,
         }) */
-        .clang_args(&["-x", "c++", "-Wno-unused-parameter"])
         // Finish the builder and generate the bindings.
         .generate()
         // Unwrap the Result and panic on failure.
