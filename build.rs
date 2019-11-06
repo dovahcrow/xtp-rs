@@ -1,6 +1,5 @@
 use std::env;
 use std::path::PathBuf;
-use std::str::FromStr;
 
 fn main() {
     cc::Build::new()
@@ -13,12 +12,10 @@ fn main() {
     println!("cargo:rustc-link-lib=xtptraderapi");
     println!("cargo:rustc-link-lib=xtpquoteapi");
 
-    let cf = PathBuf::from_str(file!()).unwrap();
-    let cfd = cf.parent().unwrap().to_str().unwrap();
     if cfg!(target_os = "macos") {
-        println!("cargo:rustc-link-search={}/xtp/bin/macosx", cfd);
+        println!("cargo:rustc-link-search=xtp/bin/macosx");
     } else if cfg!(target_os = "linux") {
-        println!("cargo:rustc-link-search={}/xtp/bin/linux_centos7", cfd);
+        println!("cargo:rustc-link-search=xtp/bin/linux_centos7");
     }
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes

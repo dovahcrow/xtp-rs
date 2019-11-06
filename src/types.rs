@@ -1,4 +1,5 @@
-use xtp_sys::{XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL, XTP_PROTOCOL_TYPE};
+use crate::sys::{XTPRI, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL, XTP_PROTOCOL_TYPE};
+use std::ffi::CStr;
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -20,14 +21,15 @@ pub enum XTPProtocolType {
     UDP = XTP_PROTOCOL_TYPE::XTP_PROTOCOL_UDP as u32,
 }
 
+#[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPExchangeType {
     /// Shanghai Exchange
-    SH = XTP_EXCHANGE_TYPE::XTP_EXCHANGE_SH as isize,
+    SH = XTP_EXCHANGE_TYPE::XTP_EXCHANGE_SH as u32,
     /// Shenzhen Exchange
-    SZ = XTP_EXCHANGE_TYPE::XTP_EXCHANGE_SZ as isize,
+    SZ = XTP_EXCHANGE_TYPE::XTP_EXCHANGE_SZ as u32,
     /// Unknown
-    Unknown = XTP_EXCHANGE_TYPE::XTP_EXCHANGE_UNKNOWN as isize,
+    Unknown = XTP_EXCHANGE_TYPE::XTP_EXCHANGE_UNKNOWN as u32,
 }
 
 pub enum XTPMarketType {
@@ -327,4 +329,19 @@ pub const XTP_ACCOUNT_PASSWORD_LEN: u32 = 64;
 pub struct XTPRspInfoStruct {
     pub error_id: i32,
     pub error_msg: String,
+}
+
+impl XTPRspInfoStruct {
+    pub unsafe fn from_raw(
+        XTPRI {
+            error_id,
+            error_msg,
+        }: &XTPRI,
+    ) -> Self {
+        let error_msg = CStr::from_ptr(error_msg as *const [i8] as *const i8);
+        XTPRspInfoStruct {
+            error_id: *error_id,
+            error_msg: error_msg.to_owned().to_string_lossy().to_string(),
+        }
+    }
 }

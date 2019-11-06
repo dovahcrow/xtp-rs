@@ -1,7 +1,11 @@
+mod errors;
 mod quote_api;
 mod quote_spi;
+#[doc(hidden)]
+pub mod sys;
 mod types;
 
+pub use errors::XTPError;
 pub use quote_api::QuoteApi;
 pub use quote_spi::QuoteSpi;
 #[doc(hidden)]
@@ -14,4 +18,4 @@ pub use quote_spi::{
     QuoteSpiStub_Rust_OnUnSubscribeAllOptionTickByTick,
     QuoteSpiStub_Rust_OnUnSubscribeAllOrderBook,
 };
-pub use types::XTPLogLevel;
+pub use types::{XTPExchangeType, XTPLogLevel, XTPProtocolType, XTPRspInfoStruct};

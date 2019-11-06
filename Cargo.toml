@@ -1,4 +1,23 @@
-[workspace]
-members = [
-    "xtp-sys", "xtp"
-]
+[package]
+name = "xtp-rs"
+version = "0.1.0"
+authors = ["Weiyuan Wu <doomsplayer@gmail.com>"]
+edition = "2018"
+
+[build-dependencies]
+bindgen = "0.51.1"
+cc = "1.0"
+
+[dependencies]
+libc = "0.2"
+failure = "0.1"
+
+[lib]
+name = "xtp"
+path = "src/lib.rs"
+
+
+[dev-dependencies]
+structopt = "0.3"
+paw = "1"
+dotenv = "0.15"
