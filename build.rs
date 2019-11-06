@@ -13,9 +13,9 @@ fn main() {
     println!("cargo:rustc-link-lib=xtpquoteapi");
 
     if cfg!(target_os = "macos") {
-        println!("cargo:rustc-link-search=xtp/bin/macosx");
+        println!("cargo:rustc-link-search=sdk/bin/macosx");
     } else if cfg!(target_os = "linux") {
-        println!("cargo:rustc-link-search=xtp/bin/linux_centos7");
+        println!("cargo:rustc-link-search=sdk/bin/linux_centos7");
     }
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes

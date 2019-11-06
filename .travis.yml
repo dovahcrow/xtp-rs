@@ -2,7 +2,13 @@ language: rust
 rust:
   - beta
 sudo: false
+git:
+    submodules: false
+# Use sed to replace the SSH URL with the public URL, then initialize submodules
+before_install:
+    - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+    - git submodule update --init --recursive
 env:
   global:
     - RUST_LOG=xtp=trace
-    - LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/xtp/bin/linux_centos7
+    - LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/sdk/bin/linux_centos7

@@ -1,14 +1,14 @@
 #ifndef XTP_RS_BRIDGE_H_
 #define XTP_RS_BRIDGE_H_
 
-#include "../../xtp/bin/include/xtp_trader_api.h"
-#include "../../xtp/bin/include/xtp_quote_api.h"
-#include "../../xtp/bin/include/xtp_api_struct.h"
-#include "../../xtp/bin/include/xoms_api_fund_struct.h"
-#include "../../xtp/bin/include/xoms_api_struct.h"
-#include "../../xtp/bin/include/xquote_api_struct.h"
-#include "../../xtp/bin/include/xtp_api_data_type.h"
-#include "../../xtp/bin/include/xtp_api_struct_common.h"
+#include "../../sdk/bin/include/xtp_trader_api.h"
+#include "../../sdk/bin/include/xtp_quote_api.h"
+#include "../../sdk/bin/include/xtp_api_struct.h"
+#include "../../sdk/bin/include/xoms_api_fund_struct.h"
+#include "../../sdk/bin/include/xoms_api_struct.h"
+#include "../../sdk/bin/include/xquote_api_struct.h"
+#include "../../sdk/bin/include/xtp_api_data_type.h"
+#include "../../sdk/bin/include/xtp_api_struct_common.h"
 
 extern "C" XTP::API::QuoteApi *CreateQuoteApi(uint8_t client_id, const char *save_file_path, XTP_LOG_LEVEL log_level = XTP_LOG_LEVEL_DEBUG);
 extern "C" void QuoteApi_Release(XTP::API::QuoteApi *self);
