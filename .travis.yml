@@ -8,7 +8,18 @@ git:
 before_install:
     - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
     - git submodule update --init --recursive
+    - export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/sdk/bin/linux_centos7
+before_script:
+    - echo $LD_LIBRARY_PATH
+    - echo `ls $LD_LIBRARY_PATH`
+after_failure:
+    - ls $TRAVIS_BUILD_DIR/sdk/bin/linux_centos7
+  
+script:
+  - ls $LD_LIBRARY_PATH
+  - LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/sdk/bin/linux_centos7 cargo build
+  - LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/sdk/bin/linux_centos7 cargo test
+
 env:
   global:
     - RUST_LOG=xtp=trace
-    - LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/sdk/bin/linux_centos7

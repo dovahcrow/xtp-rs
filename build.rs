@@ -12,12 +12,6 @@ fn main() {
     println!("cargo:rustc-link-lib=xtptraderapi");
     println!("cargo:rustc-link-lib=xtpquoteapi");
 
-    if cfg!(target_os = "macos") {
-        println!("cargo:rustc-link-search=sdk/bin/macosx");
-    } else if cfg!(target_os = "linux") {
-        println!("cargo:rustc-link-search=sdk/bin/linux_centos7");
-    }
-
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=src/wrapper.hpp");
     println!("cargo:rerun-if-changed=src/bridge/bridge.hpp");
