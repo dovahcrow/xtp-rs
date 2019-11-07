@@ -9,6 +9,13 @@ fn main() {
         .flag("-std=c++11")
         .compile("bridge");
 
+    for path in std::env::var("LD_LIBRARY_PATH")
+        .unwrap_or_else(|_| "".to_string())
+        .split(":")
+    {
+        println!("cargo:rustc-link-search={}", path);
+    }
+
     println!("cargo:rustc-link-lib=xtptraderapi");
     println!("cargo:rustc-link-lib=xtpquoteapi");
 
