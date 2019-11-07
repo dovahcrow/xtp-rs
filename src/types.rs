@@ -1,5 +1,39 @@
-use crate::sys::{XTPRI, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL, XTP_PROTOCOL_TYPE};
+#![allow(unused_comparisons)]
+use crate::sys::{
+    XTPRI, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL, XTP_MARKET_TYPE, XTP_PRICE_TYPE, XTP_PROTOCOL_TYPE,
+    XTP_SIDE_TYPE,
+};
 use std::ffi::CStr;
+use std::mem::transmute;
+
+pub unsafe trait FromRaw<T> {
+    unsafe fn from_raw(_: *const T) -> Self;
+}
+
+pub trait AsRaw<T> {
+    fn as_raw(&self) -> *const T;
+}
+
+macro_rules! impl_raw_transform {
+    ($rtype:ty, $ctype: ty, $lb: expr, $ub: expr) => {
+        unsafe impl FromRaw<$ctype> for $rtype {
+            unsafe fn from_raw(ptr: *const $ctype) -> Self {
+                let value = *ptr;
+                assert!($lb <= value as u32 && value as u32 <= $ub);
+                transmute::<_, $rtype>(value)
+            }
+        }
+
+        impl AsRaw<$ctype> for $rtype {
+            fn as_raw(&self) -> *const $ctype {
+                unsafe { transmute::<_, *const $ctype>(self) }
+            }
+        }
+    };
+    ($rtype:ty, $ctype: ty, $ub: expr) => {
+        impl_raw_transform!($rtype, $ctype, 0, $ub);
+    };
+}
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -12,6 +46,8 @@ pub enum XTPLogLevel {
     Trace = XTP_LOG_LEVEL::XTP_LOG_LEVEL_TRACE as u32,
 }
 
+impl_raw_transform!(XTPLogLevel, XTP_LOG_LEVEL, 5);
+
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPProtocolType {
@@ -20,6 +56,8 @@ pub enum XTPProtocolType {
     /// Use UDP transmission (only support market data)
     UDP = XTP_PROTOCOL_TYPE::XTP_PROTOCOL_UDP as u32,
 }
+
+impl_raw_transform!(XTPProtocolType, XTP_PROTOCOL_TYPE, 1, 2);
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -32,57 +70,71 @@ pub enum XTPExchangeType {
     Unknown = XTP_EXCHANGE_TYPE::XTP_EXCHANGE_UNKNOWN as u32,
 }
 
+impl_raw_transform!(XTPExchangeType, XTP_EXCHANGE_TYPE, 1, 3);
+
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPMarketType {
     /// Initializing or unknown
-    MarketInit = 0,
+    MarketInit = XTP_MARKET_TYPE::XTP_MKT_INIT as u32,
     /// Shenzhen A
-    SZA = 1,
+    SZA = XTP_MARKET_TYPE::XTP_MKT_SZ_A as u32,
     /// Shanghai A
-    SHA = 2,
+    SHA = XTP_MARKET_TYPE::XTP_MKT_SH_A as u32,
     /// Unknown market type
-    UNKNOWN = 3,
+    UNKNOWN = XTP_MARKET_TYPE::XTP_MKT_UNKNOWN as u32,
 }
 
+impl_raw_transform!(XTPMarketType, XTP_MARKET_TYPE, 0, 3);
+
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPPriceType {
     /// 限价单-沪 / 深 / 沪期权（除普通股票业务外，其余业务均使用此种类型）
-    Limit = 1,
+    Limit = XTP_PRICE_TYPE::XTP_PRICE_LIMIT as u32,
     /// 即时成交剩余转撤销，市价单-深 / 沪期权
-    BestOrCancel = 2,
+    BestOrCancel = XTP_PRICE_TYPE::XTP_PRICE_BEST_OR_CANCEL as u32,
     /// 最优五档即时成交剩余转限价，市价单-沪
-    BestsOrLimit = 3,
+    BestsOrLimit = XTP_PRICE_TYPE::XTP_PRICE_BEST5_OR_LIMIT as u32,
     /// U最优5档即时成交剩余转撤销，市价单-沪深
-    BestsOrCancel = 4,
+    BestsOrCancel = XTP_PRICE_TYPE::XTP_PRICE_BEST5_OR_CANCEL as u32,
     /// 全部成交或撤销,市价单-深 / 沪期权
-    AllOrCancel = 5,
+    AllOrCancel = XTP_PRICE_TYPE::XTP_PRICE_ALL_OR_CANCEL as u32,
     /// 本方最优，市价单-深
-    ForwardBest = 6,
+    ForwardBest = XTP_PRICE_TYPE::XTP_PRICE_FORWARD_BEST as u32,
     /// 对方最优剩余转限价，市价单-深 / 沪期权
-    ReverseBestLimit = 7,
+    ReverseBestLimit = XTP_PRICE_TYPE::XTP_PRICE_REVERSE_BEST_LIMIT as u32,
     /// 期权限价申报FOK
-    LimitOrCancel = 8,
+    LimitOrCancel = XTP_PRICE_TYPE::XTP_PRICE_LIMIT_OR_CANCEL as u32,
     /// 未知或者无效价格类型
-    TypeUnknown = 9,
+    TypeUnknown = XTP_PRICE_TYPE::XTP_PRICE_TYPE_UNKNOWN as u32,
 }
 
+impl_raw_transform!(XTPPriceType, XTP_PRICE_TYPE, 1, 9);
+
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPSideType {
-    Buy = 1,
-    Sell = 2,
-    Purchase = 7,
-    Redemption = 8,
-    Split = 9,
-    Merge = 10,
-    Cover = 11,
-    Freeze = 12,
-    MarginTrade = 21,
-    ShortSell = 22,
-    RepayMargin = 23,
-    RepayStock = 24,
-    StockRepayStock = 26,
-    SurstkTrans = 27,
-    GrtstkTransin = 28,
-    GrtstkTransout = 29,
-    Unknown = 30,
+    Buy = XTP_SIDE_TYPE::XTP_SIDE_BUY as u8,
+    Sell = XTP_SIDE_TYPE::XTP_SIDE_SELL as u8,
+    Purchase = XTP_SIDE_TYPE::XTP_SIDE_PURCHASE as u8,
+    Redemption = XTP_SIDE_TYPE::XTP_SIDE_REDEMPTION as u8,
+    Split = XTP_SIDE_TYPE::XTP_SIDE_SPLIT as u8,
+    Merge = XTP_SIDE_TYPE::XTP_SIDE_MERGE as u8,
+    Cover = XTP_SIDE_TYPE::XTP_SIDE_COVER as u8,
+    Freeze = XTP_SIDE_TYPE::XTP_SIDE_FREEZE as u8,
+    MarginTrade = XTP_SIDE_TYPE::XTP_SIDE_MARGIN_TRADE as u8,
+    ShortSell = XTP_SIDE_TYPE::XTP_SIDE_SHORT_SELL as u8,
+    RepayMargin = XTP_SIDE_TYPE::XTP_SIDE_REPAY_MARGIN as u8,
+    RepayStock = XTP_SIDE_TYPE::XTP_SIDE_REPAY_STOCK as u8,
+    StockRepayStock = XTP_SIDE_TYPE::XTP_SIDE_STOCK_REPAY_STOCK as u8,
+    SurstkTrans = XTP_SIDE_TYPE::XTP_SIDE_SURSTK_TRANS as u8,
+    GrtstkTransin = XTP_SIDE_TYPE::XTP_SIDE_GRTSTK_TRANSIN as u8,
+    GrtstkTransout = XTP_SIDE_TYPE::XTP_SIDE_GRTSTK_TRANSOUT as u8,
+    Unknown = XTP_SIDE_TYPE::XTP_SIDE_UNKNOWN as u8,
 }
+
+impl_raw_transform!(XTPSideType, XTP_SIDE_TYPE, 1, 30);
 
 pub enum XTPPositionEffectType {
     Init = 0,
