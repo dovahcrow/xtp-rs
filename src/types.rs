@@ -1,37 +1,31 @@
 #![allow(unused_comparisons)]
+use crate::errors::XTPError;
 use crate::sys::{
-    XTPRI, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL, XTP_MARKET_TYPE, XTP_PRICE_TYPE, XTP_PROTOCOL_TYPE,
-    XTP_SIDE_TYPE,
+    XTPRI, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL, XTP_MARKET_TYPE, XTP_ORDER_ACTION_STATUS_TYPE,
+    XTP_POSITION_EFFECT_TYPE, XTP_PRICE_TYPE, XTP_PROTOCOL_TYPE, XTP_SIDE_TYPE,
 };
+use std::convert::TryFrom;
 use std::ffi::CStr;
 use std::mem::transmute;
 
-pub unsafe trait FromRaw<T> {
-    unsafe fn from_raw(_: *const T) -> Self;
-}
-
-pub trait AsRaw<T> {
-    fn as_raw(&self) -> *const T;
-}
-
-macro_rules! impl_raw_transform {
+macro_rules! impl_ffi_convert {
     ($rtype:ty, $ctype: ty, $lb: expr, $ub: expr) => {
-        unsafe impl FromRaw<$ctype> for $rtype {
-            unsafe fn from_raw(ptr: *const $ctype) -> Self {
-                let value = *ptr;
-                assert!($lb <= value as u32 && value as u32 <= $ub);
-                transmute::<_, $rtype>(value)
+        impl TryFrom<$ctype> for $rtype {
+            type Error = XTPError;
+            fn try_from(from: $ctype) -> Result<Self, XTPError> {
+                assert!($lb <= from as u32 && from as u32 <= $ub);
+                Ok(unsafe { transmute::<_, $rtype>(from) })
             }
         }
 
-        impl AsRaw<$ctype> for $rtype {
-            fn as_raw(&self) -> *const $ctype {
-                unsafe { transmute::<_, *const $ctype>(self) }
+        impl Into<$ctype> for $rtype {
+            fn into(self) -> $ctype {
+                unsafe { transmute::<_, $ctype>(self) }
             }
         }
     };
     ($rtype:ty, $ctype: ty, $ub: expr) => {
-        impl_raw_transform!($rtype, $ctype, 0, $ub);
+        impl_ffi_convert!($rtype, $ctype, 0, $ub);
     };
 }
 
@@ -46,7 +40,7 @@ pub enum XTPLogLevel {
     Trace = XTP_LOG_LEVEL::XTP_LOG_LEVEL_TRACE as u32,
 }
 
-impl_raw_transform!(XTPLogLevel, XTP_LOG_LEVEL, 5);
+impl_ffi_convert!(XTPLogLevel, XTP_LOG_LEVEL, 5);
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -57,7 +51,7 @@ pub enum XTPProtocolType {
     UDP = XTP_PROTOCOL_TYPE::XTP_PROTOCOL_UDP as u32,
 }
 
-impl_raw_transform!(XTPProtocolType, XTP_PROTOCOL_TYPE, 1, 2);
+impl_ffi_convert!(XTPProtocolType, XTP_PROTOCOL_TYPE, 1, 2);
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -70,7 +64,7 @@ pub enum XTPExchangeType {
     Unknown = XTP_EXCHANGE_TYPE::XTP_EXCHANGE_UNKNOWN as u32,
 }
 
-impl_raw_transform!(XTPExchangeType, XTP_EXCHANGE_TYPE, 1, 3);
+impl_ffi_convert!(XTPExchangeType, XTP_EXCHANGE_TYPE, 1, 3);
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -85,7 +79,7 @@ pub enum XTPMarketType {
     UNKNOWN = XTP_MARKET_TYPE::XTP_MKT_UNKNOWN as u32,
 }
 
-impl_raw_transform!(XTPMarketType, XTP_MARKET_TYPE, 0, 3);
+impl_ffi_convert!(XTPMarketType, XTP_MARKET_TYPE, 0, 3);
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -110,7 +104,7 @@ pub enum XTPPriceType {
     TypeUnknown = XTP_PRICE_TYPE::XTP_PRICE_TYPE_UNKNOWN as u32,
 }
 
-impl_raw_transform!(XTPPriceType, XTP_PRICE_TYPE, 1, 9);
+impl_ffi_convert!(XTPPriceType, XTP_PRICE_TYPE, 1, 9);
 
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -134,29 +128,35 @@ pub enum XTPSideType {
     Unknown = XTP_SIDE_TYPE::XTP_SIDE_UNKNOWN as u8,
 }
 
-impl_raw_transform!(XTPSideType, XTP_SIDE_TYPE, 1, 30);
+impl_ffi_convert!(XTPSideType, XTP_SIDE_TYPE, 1, 30);
 
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPPositionEffectType {
-    Init = 0,
-    Open = 1,
-    Close = 2,
-    ForceClose = 3,
-    CloseToday = 4,
-    CloseYesterday = 5,
-    ForceOff = 6,
-    LocalForceClose = 7,
-    CreditForceCover = 8,
-    CreditForceClear = 9,
-    CreditForceDebt = 10,
-    CreditForceUncond = 11,
-    Unknown = 12,
+    Init = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_INIT as u8,
+    Open = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_OPEN as u8,
+    Close = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CLOSE as u8,
+    ForceClose = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_FORCECLOSE as u8,
+    CloseToday = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CLOSETODAY as u8,
+    CloseYesterday = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CLOSEYESTERDAY as u8,
+    ForceOff = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_FORCEOFF as u8,
+    LocalForceClose = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_LOCALFORCECLOSE as u8,
+    CreditForceCover = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CREDIT_FORCE_COVER as u8,
+    CreditForceClear = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CREDIT_FORCE_CLEAR as u8,
+    CreditForceDebt = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CREDIT_FORCE_DEBT as u8,
+    CreditForceUncond = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CREDIT_FORCE_UNCOND as u8,
+    Unknown = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_UNKNOWN as u8,
 }
+impl_ffi_convert!(XTPPositionEffectType, XTP_POSITION_EFFECT_TYPE, 1, 12);
 
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPOrderActionStatusType {
-    Submitted = 1,
-    Accepted = 2,
-    Rejected = 3,
+    Submitted = XTP_ORDER_ACTION_STATUS_TYPE::XTP_ORDER_ACTION_STATUS_SUBMITTED as u32,
+    Accepted = XTP_ORDER_ACTION_STATUS_TYPE::XTP_ORDER_ACTION_STATUS_ACCEPTED as u32,
+    Rejected = XTP_ORDER_ACTION_STATUS_TYPE::XTP_ORDER_ACTION_STATUS_REJECTED as u32,
 }
+impl_ffi_convert!(XTPOrderActionStatusType, XTP_ORDER_ACTION_STATUS_TYPE, 1, 3);
 
 pub enum XTPOrderStatusType {
     Init = 0,
