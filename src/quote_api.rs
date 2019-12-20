@@ -16,6 +16,7 @@ use crate::sys::{
     XTP_API_QuoteSpi, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL, XTP_PROTOCOL_TYPE,
 };
 use crate::types;
+use crate::types::FromRaw;
 use failure::Fallible;
 use libc::{c_char, c_void};
 use std::ffi::{CStr, CString};
@@ -309,12 +310,7 @@ impl QuoteApi {
         ) -> i32,
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
-        let ret_code = unsafe {
-            func(
-                self.quote_api,
-                transmute::<_, XTP_EXCHANGE_TYPE>(exchange_id),
-            )
-        };
+        let ret_code = unsafe { func(self.quote_api, exchange_id.into()) };
         self.translate_code(ret_code)
     }
 }

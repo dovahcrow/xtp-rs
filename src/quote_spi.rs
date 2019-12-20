@@ -1,14 +1,23 @@
 use crate::sys::{XTPMD, XTPOB, XTPQSI, XTPRI, XTPST, XTPTBT, XTPTPI, XTP_EXCHANGE_TYPE};
 use crate::types;
+use crate::types::FromRaw;
 use libc::{c_int, c_void};
-use std::mem::transmute;
+use std::convert::TryFrom;
 use std::slice::from_raw_parts;
+
+type RXTPRI = types::XTPRspInfoStruct;
+type RXTPET = types::XTPExchangeType;
+type RXTPST = types::XTPSpecificTickerStruct;
+type RXTPOB = types::OrderBookStruct;
+type RXTPTBT = types::XTPTickByTickStruct;
+type RXTPQSI = types::XTPQuoteStaticInfo;
+type RXTPTPI = types::XTPTickerPriceInfo;
 
 pub trait QuoteSpi {
     fn on_disconnected(&self, _reason: i32) {}
-    fn on_error(&self, _error_info: &XTPRI) {}
-    fn on_sub_market_data(&self, _ticker: &XTPST, _error_info: &XTPRI, _is_last: bool) {}
-    fn on_unsub_market_data(&self, _ticker: &XTPST, _error_info: &XTPRI, _is_last: bool) {}
+    fn on_error(&self, _error_info: RXTPRI) {}
+    fn on_sub_market_data(&self, _ticker: RXTPST, _error_info: RXTPRI, _is_last: bool) {}
+    fn on_unsub_market_data(&self, _ticker: RXTPST, _error_info: RXTPRI, _is_last: bool) {}
     fn on_depth_market_data(
         &self,
         _market_data: &XTPMD,
@@ -18,92 +27,32 @@ pub trait QuoteSpi {
         _max_ask1_count: i32,
     ) {
     }
-    fn on_sub_order_book(&self, _ticker: &XTPST, _error_info: &XTPRI, _is_last: bool) {}
-    fn on_unsub_order_book(&self, _ticker: &XTPST, _error_info: &XTPRI, _is_last: bool) {}
-    fn on_order_book(&self, _order_book: &XTPOB) {}
-    fn on_sub_tick_by_tick(&self, _ticker: &XTPST, _error_info: &XTPRI, _is_last: bool) {}
-    fn on_unsub_tick_by_tick(&self, _ticker: &XTPST, _error_info: &XTPRI, _is_last: bool) {}
-    fn on_tick_by_tick(&self, _tbt_data: &XTPTBT) {}
-    fn on_subscribe_all_market_data(
-        &self,
-        _exchange_id: types::XTPExchangeType,
-        _error_info: &XTPRI,
-    ) {
-    }
-    fn on_unsubscribe_all_market_data(
-        &self,
-        _exchange_id: types::XTPExchangeType,
-        _error_info: &XTPRI,
-    ) {
-    }
-    fn on_subscribe_all_order_book(
-        &self,
-        _exchange_id: types::XTPExchangeType,
-        _error_info: types::XTPRspInfoStruct,
-    ) {
-    }
-    fn on_unsubscribe_all_order_book(
-        &self,
-        _exchange_id: types::XTPExchangeType,
-        _error_info: &XTPRI,
-    ) {
-    }
-    fn on_subscribe_all_tick_by_tick(
-        &self,
-        _exchange_id: types::XTPExchangeType,
-        _error_info: &XTPRI,
-    ) {
-    }
-    fn on_unsubscribe_all_tick_by_tick(
-        &self,
-        _exchange_id: types::XTPExchangeType,
-        _error_info: &XTPRI,
-    ) {
-    }
-    fn on_query_all_tickers(&self, _ticker_info: &XTPQSI, _error_info: &XTPRI, _is_last: bool) {}
+    fn on_sub_order_book(&self, _ticker: RXTPST, _error_info: RXTPRI, _is_last: bool) {}
+    fn on_unsub_order_book(&self, _ticker: RXTPST, _error_info: RXTPRI, _is_last: bool) {}
+    fn on_order_book(&self, _order_book: RXTPOB) {}
+    fn on_sub_tick_by_tick(&self, _ticker: RXTPST, _error_info: RXTPRI, _is_last: bool) {}
+    fn on_unsub_tick_by_tick(&self, _ticker: RXTPST, _error_info: RXTPRI, _is_last: bool) {}
+    fn on_tick_by_tick(&self, _tbt_data: RXTPTBT) {}
+    fn on_subscribe_all_market_data(&self, _exchange_id: RXTPET, _error_info: RXTPRI) {}
+    fn on_unsubscribe_all_market_data(&self, _exchange_id: RXTPET, _error_info: RXTPRI) {}
+    fn on_subscribe_all_order_book(&self, _exchange_id: RXTPET, _error_info: RXTPRI) {}
+    fn on_unsubscribe_all_order_book(&self, _exchange_id: RXTPET, _error_info: RXTPRI) {}
+    fn on_subscribe_all_tick_by_tick(&self, _exchange_id: RXTPET, _error_info: RXTPRI) {}
+    fn on_unsubscribe_all_tick_by_tick(&self, _exchange_id: RXTPET, _error_info: RXTPRI) {}
+    fn on_query_all_tickers(&self, _ticker_info: RXTPQSI, _error_info: RXTPRI, _is_last: bool) {}
     fn on_query_tickers_price_info(
         &self,
-        _ticker_info: &XTPTPI,
-        _error_info: &XTPRI,
+        _ticker_info: RXTPTPI,
+        _error_info: RXTPRI,
         _is_last: bool,
     ) {
     }
-    fn on_subscribe_all_option_market_data(
-        &self,
-        _exchange_id: types::XTPExchangeType,
-        _error_info: &XTPRI,
-    ) {
-    }
-    fn on_unsubscribe_all_option_market_data(
-        &self,
-        _exchange_id: types::XTPExchangeType,
-        _error_info: &XTPRI,
-    ) {
-    }
-    fn on_subscribe_all_option_order_book(
-        &self,
-        _exchange_id: types::XTPExchangeType,
-        _error_info: &XTPRI,
-    ) {
-    }
-    fn on_unsubscribe_all_option_order_book(
-        &self,
-        _exchange_id: types::XTPExchangeType,
-        _error_info: &XTPRI,
-    ) {
-    }
-    fn on_subscribe_all_option_tick_by_tick(
-        &self,
-        _exchange_id: types::XTPExchangeType,
-        _error_info: &XTPRI,
-    ) {
-    }
-    fn on_unsubscribe_all_option_tick_by_tick(
-        &self,
-        _exchange_id: types::XTPExchangeType,
-        _error_info: &XTPRI,
-    ) {
-    }
+    fn on_subscribe_all_option_market_data(&self, _exchange_id: RXTPET, _error_info: RXTPRI) {}
+    fn on_unsubscribe_all_option_market_data(&self, _exchange_id: RXTPET, _error_info: RXTPRI) {}
+    fn on_subscribe_all_option_order_book(&self, _exchange_id: RXTPET, _error_info: RXTPRI) {}
+    fn on_unsubscribe_all_option_order_book(&self, _exchange_id: RXTPET, _error_info: RXTPRI) {}
+    fn on_subscribe_all_option_tick_by_tick(&self, _exchange_id: RXTPET, _error_info: RXTPRI) {}
+    fn on_unsubscribe_all_option_tick_by_tick(&self, _exchange_id: RXTPET, _error_info: RXTPRI) {}
 }
 
 unsafe fn unwrap_quote_spi<'a>(spi: *mut c_void) -> &'a mut dyn QuoteSpi {
@@ -118,10 +67,10 @@ pub extern "C" fn QuoteSpiStub_Rust_OnDisconnected(spi: *mut c_void, reason: c_i
 }
 
 #[no_mangle]
-pub extern "C" fn QuoteSpiStub_Rust_OnError(spi: *mut c_void, response_info: *const XTPRI) {
+pub extern "C" fn QuoteSpiStub_Rust_OnError(spi: *mut c_void, error_info: *const XTPRI) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let response_info = unsafe { &*response_info };
-    spi.on_error(response_info);
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_error(error_info);
 }
 
 #[no_mangle]
@@ -132,9 +81,8 @@ pub extern "C" fn QuoteSpiStub_Rust_OnSubMarketData(
     is_last: bool,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let ticker = unsafe { &*ticker };
-    let error_info = unsafe { &*error_info };
-
+    let ticker = unsafe { RXTPST::from_raw(&*ticker) };
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
     spi.on_sub_market_data(ticker, error_info, is_last);
 }
 
@@ -146,8 +94,8 @@ pub extern "C" fn QuoteSpiStub_Rust_OnUnSubMarketData(
     is_last: bool,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let ticker = unsafe { &*ticker };
-    let error_info = unsafe { &*error_info };
+    let ticker = unsafe { RXTPST::from_raw(&*ticker) };
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
     spi.on_unsub_market_data(ticker, error_info, is_last);
 }
 
@@ -184,7 +132,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnSubOrderBook(
     is_last: bool,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    spi.on_sub_order_book(unsafe { &*ticker }, unsafe { &*error_info }, is_last);
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    let ticker = unsafe { RXTPST::from_raw(&*ticker) };
+    spi.on_sub_order_book(ticker, error_info, is_last);
 }
 
 #[no_mangle]
@@ -195,13 +145,16 @@ pub extern "C" fn QuoteSpiStub_Rust_OnUnSubOrderBook(
     is_last: bool,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    unsafe { spi.on_unsub_order_book(&*ticker, &*error_info, is_last) }
+    let ticker = unsafe { RXTPST::from_raw(&*ticker) };
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_unsub_order_book(ticker, error_info, is_last);
 }
 
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnOrderBook(spi: *mut c_void, order_book: *const XTPOB) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    unsafe { spi.on_order_book(&*order_book) }
+    let order_book = unsafe { RXTPOB::from_raw(&*order_book) };
+    spi.on_order_book(order_book);
 }
 
 #[no_mangle]
@@ -212,7 +165,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnSubTickByTick(
     is_last: bool,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    unsafe { spi.on_sub_tick_by_tick(&*ticker, &*error_info, is_last) }
+    let ticker = unsafe { RXTPST::from_raw(&*ticker) };
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_sub_tick_by_tick(ticker, error_info, is_last);
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnUnSubTickByTick(
@@ -222,12 +177,15 @@ pub extern "C" fn QuoteSpiStub_Rust_OnUnSubTickByTick(
     is_last: bool,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    unsafe { spi.on_unsub_tick_by_tick(&*ticker, &*error_info, is_last) }
+    let ticker = unsafe { RXTPST::from_raw(&*ticker) };
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_unsub_tick_by_tick(ticker, error_info, is_last);
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnTickByTick(spi: *mut c_void, tbt_data: *const XTPTBT) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    unsafe { spi.on_tick_by_tick(&*tbt_data) }
+    let tbt_data = unsafe { RXTPTBT::from_raw(&*tbt_data) };
+    spi.on_tick_by_tick(tbt_data);
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllMarketData(
@@ -236,8 +194,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllMarketData(
     error_info: *const XTPRI,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let exchange_id = unsafe { transmute::<_, types::XTPExchangeType>(exchange_id) };
-    unsafe { spi.on_subscribe_all_market_data(exchange_id, &*error_info) }
+    let exchange_id = RXTPET::try_from(exchange_id).unwrap();
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_subscribe_all_market_data(exchange_id, error_info);
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllMarketData(
@@ -246,8 +205,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllMarketData(
     error_info: *const XTPRI,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let exchange_id = unsafe { transmute::<_, types::XTPExchangeType>(exchange_id) };
-    unsafe { spi.on_unsubscribe_all_market_data(exchange_id, &*error_info) }
+    let exchange_id = RXTPET::try_from(exchange_id).unwrap();
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_unsubscribe_all_market_data(exchange_id, error_info);
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOrderBook(
@@ -255,12 +215,10 @@ pub extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOrderBook(
     exchange_id: XTP_EXCHANGE_TYPE,
     error_info: *const XTPRI,
 ) {
-    unsafe {
-        let spi = unwrap_quote_spi(spi);
-        let exchange_id = transmute::<_, types::XTPExchangeType>(exchange_id);
-        let error_info = types::XTPRspInfoStruct::from_raw(&*error_info);
-        spi.on_subscribe_all_order_book(exchange_id, error_info)
-    }
+    let spi = unsafe { unwrap_quote_spi(spi) };
+    let exchange_id = RXTPET::try_from(exchange_id).unwrap();
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_subscribe_all_order_book(exchange_id, error_info);
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOrderBook(
@@ -269,8 +227,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOrderBook(
     error_info: *const XTPRI,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let exchange_id = unsafe { transmute::<_, types::XTPExchangeType>(exchange_id) };
-    unsafe { spi.on_unsubscribe_all_order_book(exchange_id, &*error_info) }
+    let exchange_id = RXTPET::try_from(exchange_id).unwrap();
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_unsubscribe_all_order_book(exchange_id, error_info);
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllTickByTick(
@@ -279,8 +238,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllTickByTick(
     error_info: *const XTPRI,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let exchange_id = unsafe { transmute::<_, types::XTPExchangeType>(exchange_id) };
-    unsafe { spi.on_subscribe_all_tick_by_tick(exchange_id, &*error_info) }
+    let exchange_id = RXTPET::try_from(exchange_id).unwrap();
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_subscribe_all_tick_by_tick(exchange_id, error_info)
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllTickByTick(
@@ -289,8 +249,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllTickByTick(
     error_info: *const XTPRI,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let exchange_id = unsafe { transmute::<_, types::XTPExchangeType>(exchange_id) };
-    unsafe { spi.on_unsubscribe_all_tick_by_tick(exchange_id, &*error_info) }
+    let exchange_id = RXTPET::try_from(exchange_id).unwrap();
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_unsubscribe_all_tick_by_tick(exchange_id, error_info);
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnQueryAllTickers(
@@ -300,7 +261,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnQueryAllTickers(
     is_last: bool,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    unsafe { spi.on_query_all_tickers(&*ticker_info, &*error_info, is_last) }
+    let ticker_info = unsafe { RXTPQSI::from_raw(&*ticker_info) };
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_query_all_tickers(ticker_info, error_info, is_last);
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnQueryTickersPriceInfo(
@@ -310,7 +273,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnQueryTickersPriceInfo(
     is_last: bool,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    unsafe { spi.on_query_tickers_price_info(&*ticker_info, &*error_info, is_last) }
+    let ticker_info = unsafe { RXTPTPI::from_raw(&*ticker_info) };
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_query_tickers_price_info(ticker_info, error_info, is_last);
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOptionMarketData(
@@ -319,8 +284,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOptionMarketData(
     error_info: *const XTPRI,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let exchange_id = unsafe { transmute::<_, types::XTPExchangeType>(exchange_id) };
-    unsafe { spi.on_subscribe_all_option_market_data(exchange_id, &*error_info) }
+    let exchange_id = RXTPET::try_from(exchange_id).unwrap();
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_subscribe_all_option_market_data(exchange_id, error_info)
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOptionMarketData(
@@ -329,8 +295,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOptionMarketData(
     error_info: *const XTPRI,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let exchange_id = unsafe { transmute::<_, types::XTPExchangeType>(exchange_id) };
-    unsafe { spi.on_unsubscribe_all_option_market_data(exchange_id, &*error_info) }
+    let exchange_id = RXTPET::try_from(exchange_id).unwrap();
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_unsubscribe_all_option_market_data(exchange_id, error_info)
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOptionOrderBook(
@@ -339,8 +306,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOptionOrderBook(
     error_info: *const XTPRI,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let exchange_id = unsafe { transmute::<_, types::XTPExchangeType>(exchange_id) };
-    unsafe { spi.on_subscribe_all_option_order_book(exchange_id, &*error_info) }
+    let exchange_id = RXTPET::try_from(exchange_id).unwrap();
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_subscribe_all_option_order_book(exchange_id, error_info)
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOptionOrderBook(
@@ -349,8 +317,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOptionOrderBook(
     error_info: *const XTPRI,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let exchange_id = unsafe { transmute::<_, types::XTPExchangeType>(exchange_id) };
-    unsafe { spi.on_unsubscribe_all_option_order_book(exchange_id, &*error_info) }
+    let exchange_id = RXTPET::try_from(exchange_id).unwrap();
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_unsubscribe_all_option_order_book(exchange_id, error_info)
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOptionTickByTick(
@@ -359,8 +328,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOptionTickByTick(
     error_info: *const XTPRI,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let exchange_id = unsafe { transmute::<_, types::XTPExchangeType>(exchange_id) };
-    unsafe { spi.on_subscribe_all_option_tick_by_tick(exchange_id, &*error_info) }
+    let exchange_id = RXTPET::try_from(exchange_id).unwrap();
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_subscribe_all_option_tick_by_tick(exchange_id, error_info);
 }
 #[no_mangle]
 pub extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOptionTickByTick(
@@ -369,8 +339,9 @@ pub extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOptionTickByTick(
     error_info: *const XTPRI,
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
-    let exchange_id = unsafe { transmute::<_, types::XTPExchangeType>(exchange_id) };
-    unsafe { spi.on_unsubscribe_all_option_tick_by_tick(exchange_id, &*error_info) }
+    let exchange_id = RXTPET::try_from(exchange_id).unwrap();
+    let error_info = unsafe { RXTPRI::from_raw(&*error_info) };
+    spi.on_unsubscribe_all_option_tick_by_tick(exchange_id, error_info);
 }
 
 #[no_mangle]
