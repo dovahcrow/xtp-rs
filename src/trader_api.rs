@@ -90,7 +90,7 @@ impl TraderApi {
         username: &str,
         password: &str,
         sock_type: types::XTPProtocolType,
-    ) -> Fallible<()> {
+    ) -> Fallible<i64> {
         {
             let ip = CString::new(format!("{}", server_addr.ip()))?;
             let username = CString::new(username)?;
@@ -105,13 +105,13 @@ impl TraderApi {
                     sock_type.into(),
                 )
             };
-            self.translate_code(ret_code as i64)
+            self.translate_code(ret_code as i64, false)
         }
     }
 
-    pub fn logout(&mut self, session_id: u64) -> Fallible<()> {
+    pub fn logout(&mut self, session_id: u64) -> Fallible<i64> {
         let retc = unsafe { TraderApi_Logout(self.trader_api, session_id) };
-        self.translate_code(retc as i64)
+        self.translate_code(retc as i64, true)
     }
 
     pub fn is_server_restart(&mut self, session_id: u64) -> bool {
@@ -122,83 +122,165 @@ impl TraderApi {
         &mut self,
         order: &types::XTPOrderInsertInfo,
         session_id: u64,
-    ) -> Fallible<()> {
+    ) -> Fallible<i64> {
         let mut order = order.into();
         let retc =
             unsafe { TraderApi_InsertOrder(self.trader_api, &mut order as *mut _, session_id) };
-        self.translate_code(retc as i64)
+        self.translate_code(retc as i64, false)
     }
 
-    pub fn cancel_order(&mut self, order_xtp_id: u64, session_id: u64) -> Fallible<()> {
+    pub fn cancel_order(&mut self, order_xtp_id: u64, session_id: u64) -> Fallible<i64> {
         let retc = unsafe { TraderApi_CancelOrder(self.trader_api, order_xtp_id, session_id) };
-        self.translate_code(retc as i64)
+        self.translate_code(retc as i64, false)
     }
 
-    // pub fn QueryOrderByXTPID(
-    //     &mut self,
-    //     order_xtp_id: u64,
-    //     session_id: u64,
-    //     request_id: i32,
-    // ) -> i32 {
-    //     TraderApi_QueryOrderByXTPID
-    // }
-    // pub fn QueryOrders(
-    //     &mut self,
-    //     query_param: &XTPQueryOrderReq,
-    //     session_id: u64,
-    //     request_id: i32,
-    // ) -> i32 {
-    //     TraderApi_QueryOrders
-    // }
-    // pub fn QueryOrdersByPage(
-    //     &mut self,
-    //     query_param: &XTPQueryOrderByPageReq,
-    //     session_id: u64,
-    //     request_id: i32,
-    // ) -> i32 {
-    //     TraderApi_QueryOrdersByPage
-    // }
-    // pub fn QueryTradesByXTPID(
-    //     &mut self,
-    //     order_xtp_id: u64,
-    //     session_id: u64,
-    //     request_id: i32,
-    // ) -> i32 {
-    //     TraderApi_QueryTradesByXTPID
-    // }
-    // pub fn QueryTrades(
-    //     &mut self,
-    //     query_param: &XTPQueryTraderReq,
-    //     session_id: u64,
-    //     request_id: i32,
-    // ) -> i32 {
-    //     TraderApi_QueryTrades
-    // }
-    // pub fn QueryTradesByPage(
-    //     &mut self,
-    //     query_param: &XTPQueryTraderByPageReq,
-    //     session_id: u64,
-    //     request_id: i32,
-    // ) -> i32 {
-    //     TraderApi_QueryTradesByPage
-    // }
-    // pub fn QueryPosition(&mut self, ticker: &str, session_id: u64, request_id: i32) -> i32 {
-    //     TraderApi_QueryPosition
-    // }
-    // pub fn QueryAsset(&mut self, session_id: u64, request_id: i32) -> i32 {
-    //     TraderApi_QueryAsset
-    // }
-    // pub fn QueryStructuredFund(
-    //     &mut self,
-    //     query_param: &XTPQueryStructuredFundInfoReq,
-    //     session_id: u64,
-    //     request_id: i32,
-    // ) -> i32 {
-    //     TraderApi_QueryStructuredFund
-    // }
-    // pub fn FundTransfer(&mut self, fund_transfer: &XTPFundTransferReq, session_id: u64) -> u64 {
-    //     TraderApi_FundTransfer
-    // }
+    pub fn query_order_by_xtpid(
+        &mut self,
+        order_xtp_id: u64,
+        session_id: u64,
+        request_id: i32,
+    ) -> Fallible<i64> {
+        let retc = unsafe {
+            TraderApi_QueryOrderByXTPID(self.trader_api, order_xtp_id, session_id, request_id)
+        };
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn query_orders(
+        &mut self,
+        query_param: &types::XTPQueryOrderReq,
+        session_id: u64,
+        request_id: i32,
+    ) -> Fallible<i64> {
+        let mut query_param = query_param.into();
+
+        let retc = unsafe {
+            TraderApi_QueryOrders(
+                self.trader_api,
+                &mut query_param as *mut _,
+                session_id,
+                request_id,
+            )
+        };
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn query_orders_by_page(
+        &mut self,
+        query_param: &types::XTPQueryOrderByPageReq,
+        session_id: u64,
+        request_id: i32,
+    ) -> Fallible<i64> {
+        let mut query_param = query_param.into();
+
+        let retc = unsafe {
+            TraderApi_QueryOrdersByPage(
+                self.trader_api,
+                &mut query_param as *mut _,
+                session_id,
+                request_id,
+            )
+        };
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn query_trades_by_xtpid(
+        &mut self,
+        order_xtp_id: u64,
+        session_id: u64,
+        request_id: i32,
+    ) -> Fallible<i64> {
+        let retc = unsafe {
+            TraderApi_QueryTradesByXTPID(self.trader_api, order_xtp_id, session_id, request_id)
+        };
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn query_trades(
+        &mut self,
+        query_param: &types::XTPQueryTraderReq,
+        session_id: u64,
+        request_id: i32,
+    ) -> Fallible<i64> {
+        let retc = unsafe {
+            TraderApi_QueryTrades(
+                self.trader_api,
+                &mut query_param.into() as *mut _,
+                session_id,
+                request_id,
+            )
+        };
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn query_trades_by_page(
+        &mut self,
+        query_param: &types::XTPQueryTraderByPageReq,
+        session_id: u64,
+        request_id: i32,
+    ) -> Fallible<i64> {
+        let retc = unsafe {
+            TraderApi_QueryTradesByPage(
+                self.trader_api,
+                &mut query_param.into() as *mut _,
+                session_id,
+                request_id,
+            )
+        };
+
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn query_position(
+        &mut self,
+        ticker: &str,
+        session_id: u64,
+        request_id: i32,
+    ) -> Fallible<i64> {
+        let s = CString::new(ticker).unwrap();
+
+        let retc =
+            unsafe { TraderApi_QueryPosition(self.trader_api, s.as_ptr(), session_id, request_id) };
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn query_asset(&mut self, session_id: u64, request_id: i32) -> Fallible<i64> {
+        let retc = unsafe { TraderApi_QueryAsset(self.trader_api, session_id, request_id) };
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn query_structured_fund(
+        &mut self,
+        query_param: &types::XTPQueryStructuredFundInfoReq,
+        session_id: u64,
+        request_id: i32,
+    ) -> Fallible<i64> {
+        let retc = unsafe {
+            TraderApi_QueryStructuredFund(
+                self.trader_api,
+                &mut query_param.into() as *mut _,
+                session_id,
+                request_id,
+            )
+        };
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn FundTransfer(
+        &mut self,
+        fund_transfer: &types::XTPFundTransferReq,
+        session_id: u64,
+    ) -> Fallible<i64> {
+        let retc = unsafe {
+            TraderApi_FundTransfer(
+                self.trader_api,
+                &mut fund_transfer.into() as *mut _,
+                session_id,
+            )
+        };
+        self.translate_code(retc as i64, false)
+    }
+
     // pub fn QueryFundTransfer(
     //     &mut self,
     //     query_param: XTPQueryFundTransferLogReq,
@@ -256,15 +338,16 @@ impl TraderApi {
         }
     }
 
-    fn translate_code(&mut self, code: i64) -> Fallible<()> {
-        if code != 0 {
-            let underlying_error = self.get_api_last_error();
-            Err(XTPError::XTPClientError {
-                error_id: underlying_error.error_id as i64,
-                error_msg: underlying_error.error_msg,
-            })?;
+    fn translate_code(&mut self, code: i64, zero_ok: bool) -> Fallible<i64> {
+        if (code == 0) == zero_ok {
+            return Ok(code);
         }
-        Ok(())
+
+        let underlying_error = self.get_api_last_error();
+        Err(XTPError::XTPClientError {
+            error_id: underlying_error.error_id as i64,
+            error_msg: underlying_error.error_msg,
+        })?
     }
 }
 

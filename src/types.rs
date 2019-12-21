@@ -1,10 +1,10 @@
 #![allow(unused_comparisons)]
 use crate::sys::{
     self, XTPOrderInsertInfo__bindgen_ty_1, __BindgenUnionField, XTPMD, XTPOB, XTPQSI, XTPRI,
-    XTPST, XTPTBT, XTPTPI, XTP_BUSINESS_TYPE, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL,
-    XTP_MARKETDATA_TYPE, XTP_MARKET_TYPE, XTP_ORDER_ACTION_STATUS_TYPE, XTP_ORDER_STATUS_TYPE,
-    XTP_ORDER_SUBMIT_STATUS_TYPE, XTP_POSITION_EFFECT_TYPE, XTP_PRICE_TYPE, XTP_PROTOCOL_TYPE,
-    XTP_SIDE_TYPE, XTP_TBT_TYPE, XTP_TE_RESUME_TYPE, XTP_TICKER_TYPE,
+    XTPST, XTPTBT, XTPTPI, XTP_BUSINESS_TYPE, XTP_EXCHANGE_TYPE, XTP_FUND_TRANSFER_TYPE,
+    XTP_LOG_LEVEL, XTP_MARKETDATA_TYPE, XTP_MARKET_TYPE, XTP_ORDER_ACTION_STATUS_TYPE,
+    XTP_ORDER_STATUS_TYPE, XTP_ORDER_SUBMIT_STATUS_TYPE, XTP_POSITION_EFFECT_TYPE, XTP_PRICE_TYPE,
+    XTP_PROTOCOL_TYPE, XTP_SIDE_TYPE, XTP_TBT_TYPE, XTP_TE_RESUME_TYPE, XTP_TICKER_TYPE,
 };
 use std::ffi::CStr;
 use std::mem::transmute;
@@ -295,19 +295,22 @@ impl_ffi_convert!(XTPBusinessType, XTP_BUSINESS_TYPE, 0, 13);
 //     Unknown = 3,
 // }
 
-// /// 资金流转方向类型
-// pub enum XTPFundTransferType {
-//     /// 转出 从XTP转出到柜台
-//     TransferOut = 0,
-//     /// 转入 从柜台转入XTP
-//     TransferIn = 1,
-//     /// 跨节点转出 从本XTP节点1，转出到对端XTP节点2，XTP服务器之间划拨，只能跨账户用户使用
-//     InterTransferOut = 2,
-//     /// 跨节点转入 从对端XTP节点2，转入到本XTP节点1，XTP服务器之间划拨，只能跨账户用户使用
-//     InterTransferIn = 3,
-//     /// 未知类型
-//     TransferUnknown = 4,
-// }
+/// 资金流转方向类型
+#[repr(u32)]
+#[derive(Copy, Debug, Clone)]
+pub enum XTPFundTransferType {
+    /// 转出 从XTP转出到柜台
+    TransferOut = XTP_FUND_TRANSFER_TYPE::XTP_FUND_TRANSFER_OUT as u32,
+    /// 转入 从柜台转入XTP
+    TransferIn = XTP_FUND_TRANSFER_TYPE::XTP_FUND_TRANSFER_IN as u32,
+    /// 跨节点转出 从本XTP节点1，转出到对端XTP节点2，XTP服务器之间划拨，只能跨账户用户使用
+    InterTransferOut = XTP_FUND_TRANSFER_TYPE::XTP_FUND_INTER_TRANSFER_OUT as u32,
+    /// 跨节点转入 从对端XTP节点2，转入到本XTP节点1，XTP服务器之间划拨，只能跨账户用户使用
+    InterTransferIn = XTP_FUND_TRANSFER_TYPE::XTP_FUND_INTER_TRANSFER_IN as u32,
+    /// 未知类型
+    TransferUnknown = XTP_FUND_TRANSFER_TYPE::XTP_FUND_TRANSFER_UNKNOWN as u32,
+}
+impl_ffi_convert!(XTPFundTransferType, XTP_FUND_TRANSFER_TYPE, 0, 4);
 
 // /// XTP_FUND_OPER_STATUS柜台资金操作结果
 // pub enum XTPFundOperStatus {
@@ -634,12 +637,6 @@ pub struct XTPOrderInsertInfo {
 
 impl From<&XTPOrderInsertInfo> for sys::XTPOrderInsertInfo {
     fn from(r: &XTPOrderInsertInfo) -> sys::XTPOrderInsertInfo {
-        let mut ticker = [0i8; 16];
-
-        for (i, &byte) in r.ticker.as_bytes()[..16].into_iter().enumerate() {
-            ticker[i] = byte as i8;
-        }
-
         let union = unsafe {
             XTPOrderInsertInfo__bindgen_ty_1 {
                 u32: __BindgenUnionField::new(),
@@ -656,7 +653,7 @@ impl From<&XTPOrderInsertInfo> for sys::XTPOrderInsertInfo {
         sys::XTPOrderInsertInfo {
             order_xtp_id: r.order_xtp_id,
             order_client_id: r.order_client_id,
-            ticker: ticker,
+            ticker: string_to_carray16(&r.ticker),
             market: r.market.into(),
             price: r.price,
             stop_price: r.stop_price,
@@ -668,6 +665,109 @@ impl From<&XTPOrderInsertInfo> for sys::XTPOrderInsertInfo {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct XTPQueryOrderReq {
+    pub ticker: String,
+    pub begin_time: i64,
+    pub end_time: i64,
+}
+
+impl From<&XTPQueryOrderReq> for sys::XTPQueryOrderReq {
+    fn from(r: &XTPQueryOrderReq) -> sys::XTPQueryOrderReq {
+        sys::XTPQueryOrderReq {
+            ticker: string_to_carray16(&r.ticker),
+            begin_time: r.begin_time,
+            end_time: r.end_time,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct XTPQueryOrderByPageReq {
+    pub req_count: i64,
+    pub reference: i64,
+    pub reserved: i64,
+}
+
+impl From<&XTPQueryOrderByPageReq> for sys::XTPQueryOrderByPageReq {
+    fn from(r: &XTPQueryOrderByPageReq) -> sys::XTPQueryOrderByPageReq {
+        sys::XTPQueryOrderByPageReq {
+            req_count: r.req_count,
+            reference: r.reference,
+            reserved: r.reserved,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPQueryTraderReq {
+    pub ticker: String,
+    pub begin_time: i64,
+    pub end_time: i64,
+}
+
+impl From<&XTPQueryTraderReq> for sys::XTPQueryTraderReq {
+    fn from(r: &XTPQueryTraderReq) -> sys::XTPQueryTraderReq {
+        sys::XTPQueryTraderReq {
+            ticker: string_to_carray16(&r.ticker),
+            begin_time: r.begin_time,
+            end_time: r.end_time,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPQueryTraderByPageReq {
+    pub req_count: i64,
+    pub reference: i64,
+    pub reserved: i64,
+}
+
+impl From<&XTPQueryTraderByPageReq> for sys::XTPQueryTraderByPageReq {
+    fn from(r: &XTPQueryTraderByPageReq) -> sys::XTPQueryTraderByPageReq {
+        sys::XTPQueryTraderByPageReq {
+            req_count: r.req_count,
+            reference: r.reference,
+            reserved: r.reserved,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPQueryStructuredFundInfoReq {
+    pub exchange_id: XTPExchangeType,
+    pub sf_ticker: String,
+}
+
+impl From<&XTPQueryStructuredFundInfoReq> for sys::XTPQueryStructuredFundInfoReq {
+    fn from(r: &XTPQueryStructuredFundInfoReq) -> sys::XTPQueryStructuredFundInfoReq {
+        sys::XTPQueryStructuredFundInfoReq {
+            exchange_id: r.exchange_id.into(),
+            sf_ticker: string_to_carray16(&r.sf_ticker),
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct XTPFundTransferReq {
+    pub serial_id: u64,
+    pub fund_account: String,
+    pub password: String,
+    pub amount: f64,
+    pub transfer_type: XTPFundTransferType,
+}
+
+impl From<&XTPFundTransferReq> for sys::XTPFundTransferReq {
+    fn from(r: &XTPFundTransferReq) -> sys::XTPFundTransferReq {
+        sys::XTPFundTransferReq {
+            serial_id: r.serial_id,
+            fund_account: string_to_carray16(&r.fund_account),
+            password: string_to_carray64(&r.password),
+            amount: r.amount,
+            transfer_type: r.transfer_type.into(),
+        }
+    }
+}
 // #[derive(Debug, Copy, Clone)]
 // pub struct XTPTickByTickEntrust {
 //     pub channel_no: i32,
@@ -691,8 +791,28 @@ impl From<&XTPOrderInsertInfo> for sys::XTPOrderInsertInfo {
 //     }
 // }
 
-fn carray_to_string(ptr: &[i8]) -> String {
+pub(crate) fn carray_to_string(ptr: &[i8]) -> String {
     let string = unsafe { CStr::from_ptr(ptr as *const [i8] as *const i8) };
     let string = string.to_owned().to_string_lossy().to_string();
     string
+}
+
+pub(crate) fn string_to_carray16(s: &str) -> [i8; 16] {
+    let mut sarr = [0i8; 16];
+
+    for (i, &byte) in s.as_bytes()[..16].into_iter().enumerate() {
+        sarr[i] = byte as i8;
+    }
+
+    sarr
+}
+
+pub(crate) fn string_to_carray64(s: &str) -> [i8; 64] {
+    let mut sarr = [0i8; 64];
+
+    for (i, &byte) in s.as_bytes()[..64].into_iter().enumerate() {
+        sarr[i] = byte as i8;
+    }
+
+    sarr
 }
