@@ -1,28 +1,30 @@
 #![allow(unused_comparisons)]
-use crate::errors::XTPError;
 use crate::sys::{
-    XTPMD, XTPOB, XTPQSI, XTPRI, XTPST, XTPTBT, XTPTPI, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL,
+    self, XTPOrderInsertInfo__bindgen_ty_1, __BindgenUnionField, XTPMD, XTPOB, XTPQSI, XTPRI,
+    XTPST, XTPTBT, XTPTPI, XTP_BUSINESS_TYPE, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL,
     XTP_MARKETDATA_TYPE, XTP_MARKET_TYPE, XTP_ORDER_ACTION_STATUS_TYPE, XTP_ORDER_STATUS_TYPE,
     XTP_ORDER_SUBMIT_STATUS_TYPE, XTP_POSITION_EFFECT_TYPE, XTP_PRICE_TYPE, XTP_PROTOCOL_TYPE,
     XTP_SIDE_TYPE, XTP_TBT_TYPE, XTP_TE_RESUME_TYPE, XTP_TICKER_TYPE,
 };
-use std::convert::TryFrom;
 use std::ffi::CStr;
 use std::mem::transmute;
 
+pub trait FromRaw<T> {
+    unsafe fn from_raw(raw: T) -> Self;
+}
+
 macro_rules! impl_ffi_convert {
     ($rtype:ty, $ctype: ty, $lb: expr, $ub: expr) => {
-        impl TryFrom<$ctype> for $rtype {
-            type Error = XTPError;
-            fn try_from(from: $ctype) -> Result<Self, XTPError> {
+        impl FromRaw<$ctype> for $rtype {
+            unsafe fn from_raw(from: $ctype) -> Self {
                 assert!($lb <= from as u32 && from as u32 <= $ub);
-                Ok(unsafe { transmute::<_, $rtype>(from) })
+                transmute::<_, $rtype>(from)
             }
         }
 
-        impl Into<$ctype> for $rtype {
-            fn into(self) -> $ctype {
-                unsafe { transmute::<_, $ctype>(self) }
+        impl From<$rtype> for $ctype {
+            fn from(r: $rtype) -> Self {
+                unsafe { transmute::<_, $ctype>(r) }
             }
         }
     };
@@ -112,7 +114,6 @@ pub enum XTPPriceType {
     /// 未知或者无效价格类型
     TypeUnknown = XTP_PRICE_TYPE::XTP_PRICE_TYPE_UNKNOWN as u32,
 }
-
 impl_ffi_convert!(XTPPriceType, XTP_PRICE_TYPE, 1, 9);
 
 #[repr(u8)]
@@ -246,38 +247,42 @@ pub enum XTPTickerType {
 }
 impl_ffi_convert!(XTPTickerType, XTP_TICKER_TYPE, 0, 6);
 
-// /// 证券业务类型
-// pub enum XTPBusinessType {
-//     /// 普通股票业务（股票买卖，ETF买卖等）
-//     Cash = 0,
-//     /// 新股申购业务（对应的price type需选择限价类型）
-//     Ipos = 1,
-//     /// 回购业务 ( 对应的price type填为限价，side填为卖 )
-//     Repo = 2,
-//     /// ETF申赎业务
-//     ETF = 3,
-//     /// 融资融券业务（暂未支持）
-//     Margin = 4,
-//     /// 转托管（未支持）
-//     Designation = 5,
-//     /// 配股业务（对应的price type需选择限价类型,side填为买）
-//     Allotment = 6,
-//     /// 分级基金申赎业务
-//     StructuredFundPurchaseRedemption = 7,
-//     /// 分级基金拆分合并业务
-//     StructuredFundSplitMerge = 8,
-//     /// 货币基金业务（暂未支持）
-//     MoneyFund = 9,
-//     /// 期权业务
-//     Option = 10,
-//     /// 行权
-//     Execute = 11,
-//     /// 锁定解锁，暂不支持
-//     Freeze = 12,
-//     /// 未知类型
-//     Unknown = 13,
-// }
-
+/// 证券业务类型
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum XTPBusinessType {
+    /// 普通股票业务（股票买卖，ETF买卖等）
+    Cash = XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_CASH as u32,
+    /// 新股申购业务（对应的price type需选择限价类型）
+    Ipos = XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_IPOS as u32,
+    /// 回购业务 ( 对应的price type填为限价，side填为卖 )
+    Repo = XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_REPO as u32,
+    /// ETF申赎业务
+    ETF = XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_ETF as u32,
+    /// 融资融券业务（暂未支持）
+    Margin = XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_MARGIN as u32,
+    /// 转托管（未支持）
+    Designation = XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_DESIGNATION as u32,
+    /// 配股业务（对应的price type需选择限价类型,side填为买）
+    Allotment = XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_ALLOTMENT as u32,
+    /// 分级基金申赎业务
+    StructuredFundPurchaseRedemption =
+        XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_STRUCTURED_FUND_PURCHASE_REDEMPTION as u32,
+    /// 分级基金拆分合并业务
+    StructuredFundSplitMerge =
+        XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_STRUCTURED_FUND_SPLIT_MERGE as u32,
+    /// 货币基金业务（暂未支持）
+    MoneyFund = XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_MONEY_FUND as u32,
+    /// 期权业务
+    Option = XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_OPTION as u32,
+    /// 行权
+    Execute = XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_EXECUTE as u32,
+    /// 锁定解锁，暂不支持
+    Freeze = XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_FREEZE as u32,
+    /// 未知类型
+    Unknown = XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_UNKNOWN as u32,
+}
+impl_ffi_convert!(XTPBusinessType, XTP_BUSINESS_TYPE, 0, 13);
 // /// 账户类型
 // pub enum XTPAccountType {
 //     /// 普通账户
@@ -401,17 +406,13 @@ impl_ffi_convert!(XTPTbtType, XTP_TBT_TYPE, 1, 2);
 // pub const XTP_ERR_MSG_LEN: u32 = 124;
 // pub const XTP_ACCOUNT_PASSWORD_LEN: u32 = 64;
 
-pub trait FromRaw<T> {
-    unsafe fn from_raw(raw: &T) -> Self;
-}
-
 #[derive(Debug, Clone)]
 pub struct XTPRspInfoStruct {
     pub error_id: i32,
     pub error_msg: String,
 }
 
-impl FromRaw<XTPRI> for XTPRspInfoStruct {
+impl FromRaw<&XTPRI> for XTPRspInfoStruct {
     unsafe fn from_raw(
         XTPRI {
             error_id,
@@ -432,14 +433,14 @@ pub struct XTPSpecificTickerStruct {
     pub ticker: String,
 }
 
-impl FromRaw<XTPST> for XTPSpecificTickerStruct {
+impl FromRaw<&XTPST> for XTPSpecificTickerStruct {
     unsafe fn from_raw(
         XTPST {
             exchange_id,
             ticker,
         }: &XTPST,
     ) -> Self {
-        let exchange_id = XTPExchangeType::try_from(*exchange_id).unwrap();
+        let exchange_id = XTPExchangeType::from_raw(*exchange_id);
         let ticker = CStr::from_ptr(ticker as *const [i8] as *const i8);
         let ticker = ticker.to_owned().to_string_lossy().to_string();
         XTPSpecificTickerStruct {
@@ -464,10 +465,10 @@ pub struct OrderBookStruct {
     pub data_time: i64,
 }
 
-impl FromRaw<XTPOB> for OrderBookStruct {
+impl FromRaw<&XTPOB> for OrderBookStruct {
     unsafe fn from_raw(ob: &XTPOB) -> Self {
         OrderBookStruct {
-            exchange_id: XTPExchangeType::try_from(ob.exchange_id).unwrap(),
+            exchange_id: XTPExchangeType::from_raw(ob.exchange_id),
             ticker: carray_to_string(&ob.ticker),
             last_price: ob.last_price,
             qty: ob.qty,
@@ -491,14 +492,14 @@ pub struct XTPTickByTickStruct {
     pub r#type: XTPTbtType,
 }
 
-impl FromRaw<XTPTBT> for XTPTickByTickStruct {
+impl FromRaw<&XTPTBT> for XTPTickByTickStruct {
     unsafe fn from_raw(tbt: &XTPTBT) -> Self {
         XTPTickByTickStruct {
-            exchange_id: XTPExchangeType::try_from(tbt.exchange_id).unwrap(),
+            exchange_id: XTPExchangeType::from_raw(tbt.exchange_id),
             ticker: carray_to_string(&tbt.ticker),
             seq: tbt.seq,
             data_time: tbt.data_time,
-            r#type: XTPTbtType::try_from(tbt.type_).unwrap(),
+            r#type: XTPTbtType::from_raw(tbt.type_),
         }
     }
 }
@@ -517,13 +518,13 @@ pub struct XTPQuoteStaticInfo {
     pub sell_qty_unit: i32,
 }
 
-impl FromRaw<XTPQSI> for XTPQuoteStaticInfo {
+impl FromRaw<&XTPQSI> for XTPQuoteStaticInfo {
     unsafe fn from_raw(qsi: &XTPQSI) -> Self {
         XTPQuoteStaticInfo {
-            exchange_id: XTPExchangeType::try_from(qsi.exchange_id).unwrap(),
+            exchange_id: XTPExchangeType::from_raw(qsi.exchange_id),
             ticker: carray_to_string(&qsi.ticker),
             ticker_name: carray_to_string(&qsi.ticker_name),
-            ticker_type: XTPTickerType::try_from(qsi.ticker_type).unwrap(),
+            ticker_type: XTPTickerType::from_raw(qsi.ticker_type),
             pre_close_price: qsi.pre_close_price,
             upper_limit_price: qsi.upper_limit_price,
             lower_limit_price: qsi.lower_limit_price,
@@ -541,10 +542,10 @@ pub struct XTPTickerPriceInfo {
     pub last_price: f64,
 }
 
-impl FromRaw<XTPTPI> for XTPTickerPriceInfo {
+impl FromRaw<&XTPTPI> for XTPTickerPriceInfo {
     unsafe fn from_raw(tpi: &XTPTPI) -> Self {
         XTPTickerPriceInfo {
-            exchange_id: XTPExchangeType::try_from(tpi.exchange_id).unwrap(),
+            exchange_id: XTPExchangeType::from_raw(tpi.exchange_id),
             ticker: carray_to_string(&tpi.ticker),
             last_price: tpi.last_price,
         }
@@ -580,13 +581,12 @@ pub struct XTPMarketDataStruct {
     pub trades_count: i64,
     pub ticker_status: String,
     pub data_type: XTPMarketdataType,
-    pub r4: i32,
 }
 
-impl FromRaw<XTPMD> for XTPMarketDataStruct {
+impl FromRaw<&XTPMD> for XTPMarketDataStruct {
     unsafe fn from_raw(md: &XTPMD) -> Self {
         XTPMarketDataStruct {
-            exchange_id: XTPExchangeType::try_from(md.exchange_id).unwrap(),
+            exchange_id: XTPExchangeType::from_raw(md.exchange_id),
             ticker: carray_to_string(&md.ticker),
             last_price: md.last_price,
             pre_close_price: md.pre_close_price,
@@ -612,8 +612,58 @@ impl FromRaw<XTPMD> for XTPMarketDataStruct {
             ask_qty: md.ask_qty,
             trades_count: md.trades_count,
             ticker_status: carray_to_string(&md.ticker_status),
-            data_type: XTPMarketdataType::try_from(md.data_type).unwrap(),
-            r4: md.r4,
+            data_type: XTPMarketdataType::from_raw(md.data_type),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPOrderInsertInfo {
+    pub order_xtp_id: u64,
+    pub order_client_id: u32,
+    pub ticker: String,
+    pub market: XTPMarketType,
+    pub price: f64,
+    pub stop_price: f64,
+    pub quantity: i64,
+    pub price_type: XTPPriceType,
+    pub side: XTPSideType,
+    pub position_effect: XTPPositionEffectType,
+    pub business_type: XTPBusinessType,
+}
+
+impl From<&XTPOrderInsertInfo> for sys::XTPOrderInsertInfo {
+    fn from(r: &XTPOrderInsertInfo) -> sys::XTPOrderInsertInfo {
+        let mut ticker = [0i8; 16];
+
+        for (i, &byte) in r.ticker.as_bytes()[..16].into_iter().enumerate() {
+            ticker[i] = byte as i8;
+        }
+
+        let union = unsafe {
+            XTPOrderInsertInfo__bindgen_ty_1 {
+                u32: __BindgenUnionField::new(),
+                __bindgen_anon_1: __BindgenUnionField::new(),
+                bindgen_union_field: transmute::<_, u32>((
+                    XTP_SIDE_TYPE::from(r.side),
+                    XTP_POSITION_EFFECT_TYPE::from(r.position_effect),
+                    0u8,
+                    0u8,
+                )),
+            }
+        };
+
+        sys::XTPOrderInsertInfo {
+            order_xtp_id: r.order_xtp_id,
+            order_client_id: r.order_client_id,
+            ticker: ticker,
+            market: r.market.into(),
+            price: r.price,
+            stop_price: r.stop_price,
+            quantity: r.quantity,
+            price_type: r.price_type.into(),
+            __bindgen_anon_1: union,
+            business_type: r.business_type.into(),
         }
     }
 }

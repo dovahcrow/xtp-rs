@@ -166,7 +166,7 @@ extern "C" void TraderApi_Release(XTP::API::TraderApi *self)
     auto s = static_cast<XTP::API::TraderApi *>(self);
     return s->Release();
 }
-extern "C" const char *GetTradingDay(XTP::API::TraderApi *self)
+extern "C" const char *TraderApi_GetTradingDay(XTP::API::TraderApi *self)
 {
     auto s = static_cast<XTP::API::TraderApi *>(self);
     return s->GetTradingDay();
@@ -176,7 +176,7 @@ extern "C" void TraderApi_RegisterSpi(XTP::API::TraderApi *self, XTP::API::Trade
     auto s = static_cast<XTP::API::TraderApi *>(self);
     return s->RegisterSpi(spi);
 }
-extern "C" XTPRI *GetApiLastError(XTP::API::TraderApi *self)
+extern "C" XTPRI *TraderApi_GetApiLastError(XTP::API::TraderApi *self)
 {
     auto s = static_cast<XTP::API::TraderApi *>(self);
     return s->GetApiLastError();

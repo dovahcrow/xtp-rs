@@ -44,9 +44,9 @@ extern "C" int QuoteApi_UnSubscribeAllOptionTickByTick(XTP::API::QuoteApi *self,
 
 extern "C" XTP::API::TraderApi *CreateTraderApi(uint8_t client_id, const char *save_file_path, XTP_LOG_LEVEL log_level = XTP_LOG_LEVEL_DEBUG);
 extern "C" void TraderApi_Release(XTP::API::TraderApi *self);
-extern "C" const char *GetTradingDay(XTP::API::TraderApi *self);
+extern "C" const char *TraderApi_GetTradingDay(XTP::API::TraderApi *self);
 extern "C" void TraderApi_RegisterSpi(XTP::API::TraderApi *self, XTP::API::TraderSpi *spi);
-extern "C" XTPRI *GetApiLastError(XTP::API::TraderApi *self);
+extern "C" XTPRI *TraderApi_GetApiLastError(XTP::API::TraderApi *self);
 extern "C" const char *TraderApi_GetApiVersion(XTP::API::TraderApi *self);
 extern "C" uint8_t TraderApi_GetClientIDByXTPID(XTP::API::TraderApi *self, uint64_t order_xtp_id);
 extern "C" const char *TraderApi_GetAccountByXTPID(XTP::API::TraderApi *self, uint64_t order_xtp_id);

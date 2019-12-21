@@ -35,7 +35,7 @@ fn main() -> Fallible<()> {
 
     let args = Args::from_args();
 
-    let mut api = QuoteApi::new(123, &args.path, XTPLogLevel::Trace);
+    let mut api = QuoteApi::new(1, &args.path, XTPLogLevel::Trace);
 
     info!("XTP Version: {:?}", api.get_api_version());
     info!("Trading Day: {:?}", api.get_trading_day());
@@ -56,9 +56,11 @@ fn main() -> Fallible<()> {
     api.subscribe_order_book(&["600018"], XTPExchangeType::SH)?;
     api.subscribe_tick_by_tick(&["600018", "600021"], XTPExchangeType::SH)?;
 
-    sleep(Duration::from_secs(100));
+    sleep(Duration::from_secs(10));
 
     api.logout()?;
+
+    sleep(Duration::from_secs(5));
 
     Ok(())
 }

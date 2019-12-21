@@ -3,6 +3,8 @@ mod quote_api;
 mod quote_spi;
 #[doc(hidden)]
 pub mod sys;
+mod trader_api;
+mod trader_spi;
 mod types;
 
 pub use errors::XTPError;
@@ -18,6 +20,8 @@ pub use quote_spi::{
     QuoteSpiStub_Rust_OnUnSubscribeAllOptionTickByTick,
     QuoteSpiStub_Rust_OnUnSubscribeAllOrderBook,
 };
+pub use trader_api::TraderApi;
+pub use trader_spi::TraderSpi;
 pub use types::{
     OrderBookStruct, XTPExchangeType, XTPLogLevel, XTPMarketDataStruct, XTPMarketType,
     XTPMarketdataType, XTPOrderActionStatusType, XTPOrderStatusType, XTPOrderSubmitStatusType,

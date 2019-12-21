@@ -29,22 +29,6 @@ pub struct QuoteApi {
 }
 
 impl QuoteApi {
-    pub fn new(id: u8, path: &str, log_level: types::XTPLogLevel) -> QuoteApi {
-        let cpath = CString::new(path);
-        let quote_api = unsafe {
-            CreateQuoteApi(
-                id,
-                cpath.unwrap().as_c_str().as_ptr(),
-                transmute::<_, XTP_LOG_LEVEL>(log_level),
-            )
-        };
-
-        QuoteApi {
-            quote_api,
-            quote_spi_stub: None,
-        }
-    }
-
     fn release(&mut self) {
         unsafe { QuoteApi_Release(self.quote_api) };
     }
@@ -190,7 +174,7 @@ impl QuoteApi {
                 server_addr.port() as i32,
                 username.as_ptr(),
                 password.as_ptr(),
-                transmute::<_, XTP_PROTOCOL_TYPE>(sock_type),
+                sock_type.into(),
             )
         };
         self.translate_code(ret_code)
@@ -259,7 +243,24 @@ impl QuoteApi {
     ) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_UnSubscribeAllOptionTickByTick, exchange_id)
     }
+}
 
+impl QuoteApi {
+    pub fn new(id: u8, path: &str, log_level: types::XTPLogLevel) -> QuoteApi {
+        let cpath = CString::new(path);
+        let quote_api = unsafe {
+            CreateQuoteApi(
+                id,
+                cpath.unwrap().as_c_str().as_ptr(),
+                transmute::<_, XTP_LOG_LEVEL>(log_level),
+            )
+        };
+
+        QuoteApi {
+            quote_api,
+            quote_spi_stub: None,
+        }
+    }
     fn translate_code(&mut self, code: i32) -> Fallible<()> {
         if code != 0 {
             let underlying_error = self.get_api_last_error();
