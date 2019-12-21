@@ -12,6 +12,7 @@ type RXTPOB = types::OrderBookStruct;
 type RXTPTBT = types::XTPTickByTickStruct;
 type RXTPQSI = types::XTPQuoteStaticInfo;
 type RXTPTPI = types::XTPTickerPriceInfo;
+type RXTPMD = types::XTPMarketDataStruct;
 
 pub trait QuoteSpi {
     fn on_disconnected(&self, _reason: i32) {}
@@ -20,7 +21,7 @@ pub trait QuoteSpi {
     fn on_unsub_market_data(&self, _ticker: RXTPST, _error_info: RXTPRI, _is_last: bool) {}
     fn on_depth_market_data(
         &self,
-        _market_data: &XTPMD,
+        _market_data: RXTPMD,
         _bid1_qty: &[i64],
         _max_bid1_count: i32,
         _ask1_qty: &[i64],
@@ -112,11 +113,12 @@ pub extern "C" fn QuoteSpiStub_Rust_OnDepthMarketData(
 ) {
     let spi = unsafe { unwrap_quote_spi(spi) };
 
+    let market_data = unsafe { RXTPMD::from_raw(&*market_data) };
     let bid1_qty = unsafe { from_raw_parts(bid1_qty, bid1_count as usize) };
     let ask1_qty = unsafe { from_raw_parts(ask1_qty, ask1_count as usize) };
 
     spi.on_depth_market_data(
-        unsafe { &*market_data },
+        market_data,
         bid1_qty,
         max_bid1_count,
         ask1_qty,

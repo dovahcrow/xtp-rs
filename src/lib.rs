@@ -19,8 +19,8 @@ pub use quote_spi::{
     QuoteSpiStub_Rust_OnUnSubscribeAllOrderBook,
 };
 pub use types::{
-    OrderBookStruct, XTPExchangeType, XTPLogLevel, XTPMarketType, XTPOrderActionStatusType,
-    XTPOrderStatusType, XTPOrderSubmitStatusType, XTPPositionEffectType, XTPPriceType,
-    XTPProtocolType, XTPRspInfoStruct, XTPSideType, XTPSpecificTickerStruct, XTPTbtType,
-    XTPTeResumeType, XTPTickByTickStruct, XTPTickerType,
+    OrderBookStruct, XTPExchangeType, XTPLogLevel, XTPMarketDataStruct, XTPMarketType,
+    XTPMarketdataType, XTPOrderActionStatusType, XTPOrderStatusType, XTPOrderSubmitStatusType,
+    XTPPositionEffectType, XTPPriceType, XTPProtocolType, XTPRspInfoStruct, XTPSideType,
+    XTPSpecificTickerStruct, XTPTbtType, XTPTeResumeType, XTPTickByTickStruct, XTPTickerType,
 };

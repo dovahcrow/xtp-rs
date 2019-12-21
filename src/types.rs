@@ -1,10 +1,10 @@
 #![allow(unused_comparisons)]
 use crate::errors::XTPError;
 use crate::sys::{
-    XTPOB, XTPQSI, XTPRI, XTPST, XTPTBT, XTPTPI, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL, XTP_MARKET_TYPE,
-    XTP_ORDER_ACTION_STATUS_TYPE, XTP_ORDER_STATUS_TYPE, XTP_ORDER_SUBMIT_STATUS_TYPE,
-    XTP_POSITION_EFFECT_TYPE, XTP_PRICE_TYPE, XTP_PROTOCOL_TYPE, XTP_SIDE_TYPE, XTP_TBT_TYPE,
-    XTP_TE_RESUME_TYPE, XTP_TICKER_TYPE,
+    XTPMD, XTPOB, XTPQSI, XTPRI, XTPST, XTPTBT, XTPTPI, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL,
+    XTP_MARKETDATA_TYPE, XTP_MARKET_TYPE, XTP_ORDER_ACTION_STATUS_TYPE, XTP_ORDER_STATUS_TYPE,
+    XTP_ORDER_SUBMIT_STATUS_TYPE, XTP_POSITION_EFFECT_TYPE, XTP_PRICE_TYPE, XTP_PROTOCOL_TYPE,
+    XTP_SIDE_TYPE, XTP_TBT_TYPE, XTP_TE_RESUME_TYPE, XTP_TICKER_TYPE,
 };
 use std::convert::TryFrom;
 use std::ffi::CStr;
@@ -80,8 +80,15 @@ pub enum XTPMarketType {
     /// Unknown market type
     UNKNOWN = XTP_MARKET_TYPE::XTP_MKT_UNKNOWN as u32,
 }
-
 impl_ffi_convert!(XTPMarketType, XTP_MARKET_TYPE, 0, 3);
+
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum XTPMarketdataType {
+    Actual = XTP_MARKETDATA_TYPE::XTP_MARKETDATA_ACTUAL as u32,
+    Option = XTP_MARKETDATA_TYPE::XTP_MARKETDATA_OPTION as u32,
+}
+impl_ffi_convert!(XTPMarketdataType, XTP_MARKETDATA_TYPE, 0, 1);
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -540,6 +547,73 @@ impl FromRaw<XTPTPI> for XTPTickerPriceInfo {
             exchange_id: XTPExchangeType::try_from(tpi.exchange_id).unwrap(),
             ticker: carray_to_string(&tpi.ticker),
             last_price: tpi.last_price,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPMarketDataStruct {
+    pub exchange_id: XTPExchangeType,
+    pub ticker: String,
+    pub last_price: f64,
+    pub pre_close_price: f64,
+    pub open_price: f64,
+    pub high_price: f64,
+    pub low_price: f64,
+    pub close_price: f64,
+    pub pre_total_long_positon: i64,
+    pub total_long_positon: i64,
+    pub pre_settl_price: f64,
+    pub settl_price: f64,
+    pub upper_limit_price: f64,
+    pub lower_limit_price: f64,
+    pub pre_delta: f64,
+    pub curr_delta: f64,
+    pub data_time: i64,
+    pub qty: i64,
+    pub turnover: f64,
+    pub avg_price: f64,
+    pub bid: [f64; 10usize],
+    pub ask: [f64; 10usize],
+    pub bid_qty: [i64; 10usize],
+    pub ask_qty: [i64; 10usize],
+    pub trades_count: i64,
+    pub ticker_status: String,
+    pub data_type: XTPMarketdataType,
+    pub r4: i32,
+}
+
+impl FromRaw<XTPMD> for XTPMarketDataStruct {
+    unsafe fn from_raw(md: &XTPMD) -> Self {
+        XTPMarketDataStruct {
+            exchange_id: XTPExchangeType::try_from(md.exchange_id).unwrap(),
+            ticker: carray_to_string(&md.ticker),
+            last_price: md.last_price,
+            pre_close_price: md.pre_close_price,
+            open_price: md.open_price,
+            high_price: md.high_price,
+            low_price: md.low_price,
+            close_price: md.close_price,
+            pre_total_long_positon: md.pre_total_long_positon,
+            total_long_positon: md.total_long_positon,
+            pre_settl_price: md.pre_close_price,
+            settl_price: md.settl_price,
+            upper_limit_price: md.upper_limit_price,
+            lower_limit_price: md.low_price,
+            pre_delta: md.pre_close_price,
+            curr_delta: md.curr_delta,
+            data_time: md.data_time,
+            qty: md.qty,
+            turnover: md.turnover,
+            avg_price: md.avg_price,
+            bid: md.bid,
+            ask: md.ask,
+            bid_qty: md.bid_qty,
+            ask_qty: md.ask_qty,
+            trades_count: md.trades_count,
+            ticker_status: carray_to_string(&md.ticker_status),
+            data_type: XTPMarketdataType::try_from(md.data_type).unwrap(),
+            r4: md.r4,
         }
     }
 }

@@ -22,6 +22,7 @@ fn main() {
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=src/wrapper.hpp");
     println!("cargo:rerun-if-changed=src/bridge/bridge.hpp");
+    println!("cargo:rerun-if-changed=src/bridge/bridge.cpp");
 
     let bindings = bindgen::Builder::default()
         // The input header we would like to generate
