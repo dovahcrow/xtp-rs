@@ -9,12 +9,7 @@ fn main() {
         .flag("-std=c++11")
         .compile("bridge");
 
-    for path in std::env::var("LD_LIBRARY_PATH")
-        .unwrap_or_else(|_| "".to_string())
-        .split(":")
-    {
-        println!("cargo:rustc-link-search={}", path);
-    }
+    add_search_path();
 
     println!("cargo:rustc-link-lib=xtptraderapi");
     println!("cargo:rustc-link-lib=xtpquoteapi");
@@ -52,4 +47,24 @@ fn main() {
     bindings
         .write_to_file(out_path.join("bindings.rs"))
         .expect("Couldn't write bindings!");
+}
+
+#[cfg(not(target_os = "windows"))]
+fn add_search_path() {
+    for path in std::env::var("LD_LIBRARY_PATH")
+        .unwrap_or_else(|_| "".to_string())
+        .split(":")
+    {
+        println!("cargo:rustc-link-search={}", path);
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn add_search_path() {
+    for path in std::env::var("PATH")
+        .unwrap_or_else(|_| "".to_string())
+        .split(":")
+    {
+        println!("cargo:rustc-link-search={}", path);
+    }
 }
