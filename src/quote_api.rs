@@ -13,7 +13,7 @@ use crate::sys::{
     QuoteApi_UnSubscribeAllOptionTickByTick, QuoteApi_UnSubscribeAllOrderBook,
     QuoteApi_UnSubscribeAllTickByTick, QuoteApi_UnSubscribeMarketData,
     QuoteApi_UnSubscribeOrderBook, QuoteApi_UnSubscribeTickByTick, QuoteSpiStub, XTP_API_QuoteApi,
-    XTP_API_QuoteSpi, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL, XTP_PROTOCOL_TYPE,
+    XTP_API_QuoteSpi, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL,
 };
 use crate::types;
 use crate::types::FromRaw;

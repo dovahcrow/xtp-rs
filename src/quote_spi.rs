@@ -2,7 +2,6 @@ use crate::sys::{XTPMD, XTPOB, XTPQSI, XTPRI, XTPST, XTPTBT, XTPTPI, XTP_EXCHANG
 use crate::types;
 use crate::types::FromRaw;
 use libc::{c_int, c_void};
-use std::convert::TryFrom;
 use std::slice::from_raw_parts;
 
 type RXTPRI = types::XTPRspInfoStruct;

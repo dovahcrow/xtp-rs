@@ -768,6 +768,64 @@ impl From<&XTPFundTransferReq> for sys::XTPFundTransferReq {
         }
     }
 }
+
+#[derive(Debug, Copy, Clone)]
+pub struct XTPQueryFundTransferLogReq {
+    pub serial_id: u64,
+}
+
+impl From<&XTPQueryFundTransferLogReq> for sys::XTPQueryFundTransferLogReq {
+    fn from(r: &XTPQueryFundTransferLogReq) -> sys::XTPQueryFundTransferLogReq {
+        sys::XTPQueryFundTransferLogReq {
+            serial_id: r.serial_id,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPQueryETFBaseReq {
+    pub market: XTPMarketType,
+    pub ticker: String,
+}
+
+impl From<&XTPQueryETFBaseReq> for sys::XTPQueryETFBaseReq {
+    fn from(r: &XTPQueryETFBaseReq) -> sys::XTPQueryETFBaseReq {
+        sys::XTPQueryETFBaseReq {
+            market: r.market.into(),
+            ticker: string_to_carray16(&r.ticker),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPQueryETFComponentReq {
+    pub market: XTPMarketType,
+    pub ticker: String,
+}
+
+impl From<&XTPQueryETFComponentReq> for sys::XTPQueryETFComponentReq {
+    fn from(r: &XTPQueryETFComponentReq) -> sys::XTPQueryETFComponentReq {
+        sys::XTPQueryETFComponentReq {
+            market: r.market.into(),
+            ticker: string_to_carray16(&r.ticker),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPQueryOptionAuctionInfoReq {
+    pub market: XTPMarketType,
+    pub ticker: String,
+}
+
+impl From<&XTPQueryOptionAuctionInfoReq> for sys::XTPQueryOptionAuctionInfoReq {
+    fn from(r: &XTPQueryOptionAuctionInfoReq) -> sys::XTPQueryOptionAuctionInfoReq {
+        sys::XTPQueryOptionAuctionInfoReq {
+            market: r.market.into(),
+            ticker: string_to_carray16(&r.ticker),
+        }
+    }
+}
 // #[derive(Debug, Copy, Clone)]
 // pub struct XTPTickByTickEntrust {
 //     pub channel_no: i32,

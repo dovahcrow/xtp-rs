@@ -16,7 +16,7 @@ use crate::trader_spi::TraderSpi;
 use crate::types;
 use crate::types::FromRaw;
 use failure::Fallible;
-use libc::{c_char, c_void};
+use libc::c_void;
 use std::ffi::{CStr, CString};
 use std::mem::transmute;
 use std::net::SocketAddrV4;
@@ -66,7 +66,9 @@ impl TraderApi {
         unsafe { CStr::from_ptr(ptr) }
     }
 
-    pub fn subscribe_public_topic(&mut self, resume_type: types::XTPTeResumeType) {}
+    pub fn subscribe_public_topic(&mut self, resume_type: types::XTPTeResumeType) {
+        unsafe { TraderApi_SubscribePublicTopic(self.trader_api, resume_type.into()) };
+    }
 
     pub fn set_software_version(&mut self, version: &str) -> Fallible<()> {
         let version = CString::new(version)?;
@@ -266,7 +268,7 @@ impl TraderApi {
         self.translate_code(retc as i64, true)
     }
 
-    pub fn FundTransfer(
+    pub fn fund_transfer(
         &mut self,
         fund_transfer: &types::XTPFundTransferReq,
         session_id: u64,
@@ -281,44 +283,83 @@ impl TraderApi {
         self.translate_code(retc as i64, false)
     }
 
-    // pub fn QueryFundTransfer(
-    //     &mut self,
-    //     query_param: XTPQueryFundTransferLogReq,
-    //     session_id: u64,
-    //     request_id: i32,
-    // ) -> i32 {
-    //     TraderApi_QueryFundTransfer
-    // }
-    // pub fn QueryETF(
-    //     &mut self,
-    //     query_param: XTPQueryETFBaseReq,
-    //     session_id: u64,
-    //     request_id: i32,
-    // ) -> i32 {
-    //     TraderApi_QueryETF
-    // }
-    // pub fn QueryETFTickerBasket(
-    //     &mut self,
-    //     query_param: &XTPQueryETFComponentReq,
-    //     session_id: u64,
-    //     request_id: i32,
-    // ) -> i32 {
-    //     TraderApi_QueryETFTickerBasket
-    // }
-    // pub fn QueryIPOInfoList(&mut self, session_id: u64, request_id: i32) -> i32 {
-    //     TraderApi_QueryIPOInfoList
-    // }
-    // pub fn QueryIPOQuotaInfo(&mut self, session_id: u64, request_id: i32) -> i32 {
-    //     TraderApi_QueryIPOQuotaInfo
-    // }
-    // pub fn QueryOptionAuctionInfo(
-    //     &mut self,
-    //     query_param: XTPQueryOptionAuctionInfoReq,
-    //     session_id: u64,
-    //     request_id: i32,
-    // ) -> i32 {
-    //     TraderApi_QueryOptionAuctionInfo
-    // }
+    pub fn query_fund_transfer(
+        &mut self,
+        query_param: &types::XTPQueryFundTransferLogReq,
+        session_id: u64,
+        request_id: i32,
+    ) -> Fallible<i64> {
+        let retc = unsafe {
+            TraderApi_QueryFundTransfer(
+                self.trader_api,
+                &mut query_param.into() as *mut _,
+                session_id,
+                request_id,
+            )
+        };
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn query_etf(
+        &mut self,
+        query_param: &types::XTPQueryETFBaseReq,
+        session_id: u64,
+        request_id: i32,
+    ) -> Fallible<i64> {
+        let retc = unsafe {
+            TraderApi_QueryETF(
+                self.trader_api,
+                &mut query_param.into(),
+                session_id,
+                request_id,
+            )
+        };
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn query_etf_ticker_basket(
+        &mut self,
+        query_param: &types::XTPQueryETFComponentReq,
+        session_id: u64,
+        request_id: i32,
+    ) -> Fallible<i64> {
+        let retc = unsafe {
+            TraderApi_QueryETFTickerBasket(
+                self.trader_api,
+                &mut query_param.into() as *mut _,
+                session_id,
+                request_id,
+            )
+        };
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn query_ipo_info_list(&mut self, session_id: u64, request_id: i32) -> Fallible<i64> {
+        let retc = unsafe { TraderApi_QueryIPOInfoList(self.trader_api, session_id, request_id) };
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn query_ipo_quota_info(&mut self, session_id: u64, request_id: i32) -> Fallible<i64> {
+        let retc = unsafe { TraderApi_QueryIPOQuotaInfo(self.trader_api, session_id, request_id) };
+        self.translate_code(retc as i64, true)
+    }
+
+    pub fn query_option_auction_info(
+        &mut self,
+        query_param: &types::XTPQueryOptionAuctionInfoReq,
+        session_id: u64,
+        request_id: i32,
+    ) -> Fallible<i64> {
+        let retc = unsafe {
+            TraderApi_QueryOptionAuctionInfo(
+                self.trader_api,
+                &mut query_param.into() as *mut _,
+                session_id,
+                request_id,
+            )
+        };
+        self.translate_code(retc as i64, true)
+    }
 }
 
 impl TraderApi {
