@@ -1,10 +1,11 @@
 #![allow(unused_comparisons)]
 use crate::sys::{
-    self, XTPOrderInsertInfo__bindgen_ty_1, __BindgenUnionField, XTPMD, XTPOB, XTPQSI, XTPRI,
-    XTPST, XTPTBT, XTPTPI, XTP_BUSINESS_TYPE, XTP_EXCHANGE_TYPE, XTP_FUND_TRANSFER_TYPE,
-    XTP_LOG_LEVEL, XTP_MARKETDATA_TYPE, XTP_MARKET_TYPE, XTP_ORDER_ACTION_STATUS_TYPE,
-    XTP_ORDER_STATUS_TYPE, XTP_ORDER_SUBMIT_STATUS_TYPE, XTP_POSITION_EFFECT_TYPE, XTP_PRICE_TYPE,
-    XTP_PROTOCOL_TYPE, XTP_SIDE_TYPE, XTP_TBT_TYPE, XTP_TE_RESUME_TYPE, XTP_TICKER_TYPE,
+    self, TXTPOrderTypeType, XTPOrderInfo__bindgen_ty_1__bindgen_ty_1,
+    XTPOrderInsertInfo__bindgen_ty_1, __BindgenUnionField, XTPMD, XTPOB, XTPQSI, XTPRI, XTPST,
+    XTPTBT, XTPTPI, XTP_BUSINESS_TYPE, XTP_EXCHANGE_TYPE, XTP_FUND_TRANSFER_TYPE, XTP_LOG_LEVEL,
+    XTP_MARKETDATA_TYPE, XTP_MARKET_TYPE, XTP_ORDER_ACTION_STATUS_TYPE, XTP_ORDER_STATUS_TYPE,
+    XTP_ORDER_SUBMIT_STATUS_TYPE, XTP_POSITION_EFFECT_TYPE, XTP_PRICE_TYPE, XTP_PROTOCOL_TYPE,
+    XTP_SIDE_TYPE, XTP_TBT_TYPE, XTP_TE_RESUME_TYPE, XTP_TICKER_TYPE,
 };
 use std::ffi::CStr;
 use std::mem::transmute;
@@ -32,6 +33,8 @@ macro_rules! impl_ffi_convert {
         impl_ffi_convert!($rtype, $ctype, 0, $ub);
     };
 }
+
+pub type XTPOrderInfoUnion = XTPOrderInfo__bindgen_ty_1__bindgen_ty_1;
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -826,6 +829,64 @@ impl From<&XTPQueryOptionAuctionInfoReq> for sys::XTPQueryOptionAuctionInfoReq {
         }
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct XTPOrderInfo {
+    pub order_xtp_id: u64,
+    pub order_client_id: u32,
+    pub order_cancel_client_id: u32,
+    pub order_cancel_xtp_id: u64,
+    pub ticker: String,
+    pub market: XTPMarketType,
+    pub price: f64,
+    pub quantity: i64,
+    pub price_type: XTPPriceType,
+    pub side: XTPSideType,
+    pub position_effect: XTPPositionEffectType,
+    pub business_type: XTPBusinessType,
+    pub qty_traded: i64,
+    pub qty_left: i64,
+    pub insert_time: i64,
+    pub update_time: i64,
+    pub cancel_time: i64,
+    pub trade_amount: f64,
+    pub order_local_id: String,
+    pub order_status: XTPOrderStatusType,
+    pub order_submit_status: XTPOrderSubmitStatusType,
+    pub order_type: TXTPOrderTypeType,
+}
+
+impl FromRaw<&sys::XTPOrderInfo> for XTPOrderInfo {
+    unsafe fn from_raw(r: &sys::XTPOrderInfo) -> XTPOrderInfo {
+        let union = transmute::<_, &XTPOrderInfoUnion>(&r.__bindgen_anon_1);
+
+        XTPOrderInfo {
+            order_xtp_id: r.order_xtp_id,
+            order_client_id: r.order_client_id,
+            order_cancel_client_id: r.order_cancel_client_id,
+            order_cancel_xtp_id: r.order_cancel_xtp_id,
+            ticker: carray_to_string(&r.ticker),
+            market: XTPMarketType::from_raw(r.market),
+            price: r.price,
+            quantity: r.quantity,
+            price_type: XTPPriceType::from_raw(r.price_type),
+            side: XTPSideType::from_raw(union.side),
+            position_effect: XTPPositionEffectType::from_raw(union.position_effect),
+            business_type: XTPBusinessType::from_raw(r.business_type),
+            qty_traded: r.qty_traded,
+            qty_left: r.qty_left,
+            insert_time: r.insert_time,
+            update_time: r.update_time,
+            cancel_time: r.cancel_time,
+            trade_amount: r.trade_amount,
+            order_local_id: carray_to_string(&r.order_local_id),
+            order_status: XTPOrderStatusType::from_raw(r.order_status),
+            order_submit_status: XTPOrderSubmitStatusType::from_raw(r.order_submit_status),
+            order_type: r.order_type,
+        }
+    }
+}
+
 // #[derive(Debug, Copy, Clone)]
 // pub struct XTPTickByTickEntrust {
 //     pub channel_no: i32,
