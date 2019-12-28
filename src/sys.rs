@@ -68,12 +68,12 @@ pub enum TXTPOrderTypeType {
 
 impl Drop for QuoteSpiStub {
     fn drop(&mut self) {
-        unsafe { QuoteSpiStub_Destructor(self as *mut _) }
+        unreachable!("QuoteSpiStub should be manually dropped!")
     }
 }
 
 impl Drop for TraderSpiStub {
     fn drop(&mut self) {
-        unsafe { TraderSpiStub_Destructor(self as *mut _) }
+        unreachable!("TraderSpiStub should be manually dropped!")
     }
 }

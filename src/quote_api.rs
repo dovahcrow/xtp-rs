@@ -12,8 +12,8 @@ use crate::sys::{
     QuoteApi_UnSubscribeAllOptionMarketData, QuoteApi_UnSubscribeAllOptionOrderBook,
     QuoteApi_UnSubscribeAllOptionTickByTick, QuoteApi_UnSubscribeAllOrderBook,
     QuoteApi_UnSubscribeAllTickByTick, QuoteApi_UnSubscribeMarketData,
-    QuoteApi_UnSubscribeOrderBook, QuoteApi_UnSubscribeTickByTick, QuoteSpiStub, XTP_API_QuoteApi,
-    XTP_API_QuoteSpi, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL,
+    QuoteApi_UnSubscribeOrderBook, QuoteApi_UnSubscribeTickByTick, QuoteSpiStub,
+    QuoteSpiStub_Destructor, XTP_API_QuoteApi, XTP_API_QuoteSpi, XTP_EXCHANGE_TYPE, XTP_LOG_LEVEL,
 };
 use crate::types;
 use crate::types::FromRaw;
@@ -320,7 +320,7 @@ impl Drop for QuoteApi {
     fn drop(&mut self) {
         self.release();
         if let Some(spi_stub) = self.quote_spi_stub {
-            unsafe { Box::from_raw(spi_stub) };
+            unsafe { QuoteSpiStub_Destructor(spi_stub) };
         }
     }
 }

@@ -10,7 +10,7 @@ use crate::sys::{
     TraderApi_QueryTrades, TraderApi_QueryTradesByPage, TraderApi_QueryTradesByXTPID,
     TraderApi_RegisterSpi, TraderApi_Release, TraderApi_SetHeartBeatInterval,
     TraderApi_SetSoftwareKey, TraderApi_SetSoftwareVersion, TraderApi_SubscribePublicTopic,
-    TraderSpiStub, XTP_API_TraderApi, XTP_API_TraderSpi, XTP_LOG_LEVEL,
+    TraderSpiStub, TraderSpiStub_Destructor, XTP_API_TraderApi, XTP_API_TraderSpi, XTP_LOG_LEVEL,
 };
 use crate::trader_spi::TraderSpi;
 use crate::types;
@@ -396,7 +396,7 @@ impl Drop for TraderApi {
     fn drop(&mut self) {
         self.release();
         if let Some(spi_stub) = self.trader_spi_stub {
-            unsafe { Box::from_raw(spi_stub) };
+            unsafe { TraderSpiStub_Destructor(spi_stub) };
         }
     }
 }
