@@ -30,7 +30,7 @@ struct Args {
 }
 
 fn main() -> Fallible<()> {
-    dotenv()?;
+    let _ = dotenv();
     init();
 
     let args = Args::from_args();
