@@ -2,6 +2,8 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
+    check_arch();
+
     cc::Build::new()
         .file("src/bridge/bridge.cpp")
         .cpp(true)
@@ -66,8 +68,16 @@ fn add_search_path() {
         .split(";")
     {
         if path.trim().len() == 0 {
-            continue
+            continue;
         }
         println!("cargo:rustc-link-search={}", path);
     }
+}
+
+#[cfg(target_arch = "x86_64")]
+fn check_arch() {}
+
+#[cfg(target_arch = "x86")]
+fn check_arch() {
+    unimplemented!("Not implemented for 32 bit system!");
 }
