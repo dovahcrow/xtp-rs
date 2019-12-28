@@ -63,8 +63,11 @@ fn add_search_path() {
 fn add_search_path() {
     for path in std::env::var("PATH")
         .unwrap_or_else(|_| "".to_string())
-        .split(":")
+        .split(";")
     {
+        if path.trim().len() == 0 {
+            continue
+        }
         println!("cargo:rustc-link-search={}", path);
     }
 }

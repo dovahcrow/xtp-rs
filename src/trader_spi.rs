@@ -237,4 +237,8 @@ pub extern "C" fn TraderSpiStub_Rust_OnQueryOptionAuctionInfo(
     let spi = unsafe { unwrap_quote_spi(spi) };
 }
 #[no_mangle]
-pub extern "C" fn TraderSpiStub_Rust_Destructor(spi: *mut c_void) {}
+pub extern "C" fn TraderSpiStub_Rust_Destructor(spi: *mut c_void) {
+    let spi = spi as *mut Box<dyn TraderSpi>;
+
+    let _: Box<Box<dyn TraderSpi>> = unsafe { Box::from_raw(spi) };
+}

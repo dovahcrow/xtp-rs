@@ -108,7 +108,7 @@ public:
     void OnUnSubscribeAllOptionTickByTick(XTP_EXCHANGE_TYPE exchange_id, XTPRI *error_info);
     ~QuoteSpiStub();
 };
-
+extern "C" void QuoteSpiStub_Destructor(QuoteSpiStub* stub) { delete stub; }
 extern "C" void QuoteSpiStub_Rust_OnDisconnected(void *rust_object, int reason);
 extern "C" void QuoteSpiStub_Rust_OnError(void *rust_object, XTPRI *error_info);
 extern "C" void QuoteSpiStub_Rust_OnSubMarketData(void *rust_object, XTPST *ticker, XTPRI *error_info, bool is_last);
@@ -162,7 +162,7 @@ public:
     void OnQueryOptionAuctionInfo(XTPQueryOptionAuctionInfoRsp *option_info, XTPRI *error_info, int request_id, bool is_last, uint64_t session_id);
     ~TraderSpiStub();
 };
-
+extern "C" void TraderSpiStub_Destructor(TraderSpiStub* stub) { delete stub; }
 extern "C" void TraderSpiStub_Rust_OnDisconnected(void *rust_object, uint64_t session_id, int reason);
 extern "C" void TraderSpiStub_Rust_OnError(void *rust_object, XTPRI *error_info);
 extern "C" void TraderSpiStub_Rust_OnOrderEvent(void *rust_object, XTPOrderInfo *order_info, XTPRI *error_info, uint64_t session_id);
