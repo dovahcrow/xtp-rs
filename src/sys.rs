@@ -55,6 +55,7 @@ pub enum TXTPTradeTypeType {
     XTP_TRDT_CROSS_MKT_CASH = XTP_TRDT_CROSS_MKT_CASH,
 }
 
+/// TXTPOrderTypeType是报单类型类型
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum TXTPOrderTypeType {

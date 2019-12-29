@@ -1,11 +1,13 @@
 #![allow(unused_comparisons)]
 use crate::sys::{
-    self, TXTPOrderTypeType, XTPOrderInfo__bindgen_ty_1__bindgen_ty_1,
-    XTPOrderInsertInfo__bindgen_ty_1, __BindgenUnionField, XTPMD, XTPOB, XTPQSI, XTPRI, XTPST,
-    XTPTBT, XTPTPI, XTP_BUSINESS_TYPE, XTP_EXCHANGE_TYPE, XTP_FUND_TRANSFER_TYPE, XTP_LOG_LEVEL,
-    XTP_MARKETDATA_TYPE, XTP_MARKET_TYPE, XTP_ORDER_ACTION_STATUS_TYPE, XTP_ORDER_STATUS_TYPE,
-    XTP_ORDER_SUBMIT_STATUS_TYPE, XTP_POSITION_EFFECT_TYPE, XTP_PRICE_TYPE, XTP_PROTOCOL_TYPE,
-    XTP_SIDE_TYPE, XTP_TBT_TYPE, XTP_TE_RESUME_TYPE, XTP_TICKER_TYPE,
+    self, TXTPOrderTypeType, TXTPTradeTypeType, XTPOrderInfo__bindgen_ty_1__bindgen_ty_1,
+    XTPOrderInsertInfo__bindgen_ty_1, __BindgenUnionField, ETF_REPLACE_TYPE, XTPMD, XTPOB, XTPQSI,
+    XTPRI, XTPST, XTPTBT, XTPTPI, XTP_ACCOUNT_TYPE, XTP_BUSINESS_TYPE, XTP_EXCHANGE_TYPE,
+    XTP_FUND_OPER_STATUS, XTP_FUND_TRANSFER_TYPE, XTP_LOG_LEVEL, XTP_MARKETDATA_TYPE,
+    XTP_MARKET_TYPE, XTP_OPT_CALL_OR_PUT_TYPE, XTP_OPT_EXERCISE_TYPE_TYPE,
+    XTP_ORDER_ACTION_STATUS_TYPE, XTP_ORDER_STATUS_TYPE, XTP_ORDER_SUBMIT_STATUS_TYPE,
+    XTP_POSITION_DIRECTION_TYPE, XTP_POSITION_EFFECT_TYPE, XTP_PRICE_TYPE, XTP_PROTOCOL_TYPE,
+    XTP_SIDE_TYPE, XTP_SPLIT_MERGE_STATUS, XTP_TBT_TYPE, XTP_TE_RESUME_TYPE, XTP_TICKER_TYPE,
 };
 use std::ffi::CStr;
 use std::mem::transmute;
@@ -46,7 +48,6 @@ pub enum XTPLogLevel {
     Debug = XTP_LOG_LEVEL::XTP_LOG_LEVEL_DEBUG as u32,
     Trace = XTP_LOG_LEVEL::XTP_LOG_LEVEL_TRACE as u32,
 }
-
 impl_ffi_convert!(XTPLogLevel, XTP_LOG_LEVEL, 5);
 
 #[repr(u32)]
@@ -85,7 +86,7 @@ pub enum XTPMarketType {
     /// Unknown market type
     UNKNOWN = XTP_MARKET_TYPE::XTP_MKT_UNKNOWN as u32,
 }
-impl_ffi_convert!(XTPMarketType, XTP_MARKET_TYPE, 0, 3);
+impl_ffi_convert!(XTPMarketType, XTP_MARKET_TYPE, 3);
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -93,7 +94,7 @@ pub enum XTPMarketdataType {
     Actual = XTP_MARKETDATA_TYPE::XTP_MARKETDATA_ACTUAL as u32,
     Option = XTP_MARKETDATA_TYPE::XTP_MARKETDATA_OPTION as u32,
 }
-impl_ffi_convert!(XTPMarketdataType, XTP_MARKETDATA_TYPE, 0, 1);
+impl_ffi_convert!(XTPMarketdataType, XTP_MARKETDATA_TYPE, 1);
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -183,7 +184,7 @@ pub enum XTPOrderStatusType {
     Rejected = XTP_ORDER_STATUS_TYPE::XTP_ORDER_STATUS_REJECTED as u32,
     Unknown = XTP_ORDER_STATUS_TYPE::XTP_ORDER_STATUS_UNKNOWN as u32,
 }
-impl_ffi_convert!(XTPOrderStatusType, XTP_ORDER_STATUS_TYPE, 0, 7);
+impl_ffi_convert!(XTPOrderStatusType, XTP_ORDER_STATUS_TYPE, 7);
 
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -207,27 +208,30 @@ pub enum XTPTeResumeType {
     /// 只传送登录后公有流（订单响应、成交回报）的内容"
     Quick = XTP_TE_RESUME_TYPE::XTP_TERT_QUICK as u32,
 }
-impl_ffi_convert!(XTPTeResumeType, XTP_TE_RESUME_TYPE, 0, 2);
+impl_ffi_convert!(XTPTeResumeType, XTP_TE_RESUME_TYPE, 2);
 
-// /// ETF_REPLACE_TYPE现金替代标识定义
-// pub enum ETFReplaceType {
-//     /// 禁止现金替代
-//     Forbidden = 0,
-//     /// 可以现金替代
-//     Optional = 1,
-//     /// 必须现金替代
-//     Must = 2,
-//     /// 深市退补现金替代
-//     RecomputeInterSZ = 3,
-//     /// 深市必须现金替代
-//     MustInterSZ = 4,
-//     /// 非沪深市场成分证券退补现金替代
-//     RecomputeInterOther = 5,
-//     /// 表示非沪深市场成份证券必须现金替代
-//     MustInterOther = 6,
-//     /// 无效值
-//     Invalid = 7,
-// }
+/// ETF_REPLACE_TYPE现金替代标识定义
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum ETFReplaceType {
+    /// 禁止现金替代
+    Forbidden = ETF_REPLACE_TYPE::ERT_CASH_FORBIDDEN as u32,
+    /// 可以现金替代
+    Optional = ETF_REPLACE_TYPE::ERT_CASH_OPTIONAL as u32,
+    /// 必须现金替代
+    Must = ETF_REPLACE_TYPE::ERT_CASH_MUST as u32,
+    /// 深市退补现金替代
+    RecomputeInterSZ = ETF_REPLACE_TYPE::ERT_CASH_RECOMPUTE_INTER_SZ as u32,
+    /// 深市必须现金替代
+    MustInterSZ = ETF_REPLACE_TYPE::ERT_CASH_MUST_INTER_SZ as u32,
+    /// 非沪深市场成分证券退补现金替代
+    RecomputeInterOther = ETF_REPLACE_TYPE::ERT_CASH_RECOMPUTE_INTER_OTHER as u32,
+    /// 表示非沪深市场成份证券必须现金替代
+    MustInterOther = ETF_REPLACE_TYPE::ERT_CASH_MUST_INTER_OTHER as u32,
+    /// 无效值
+    Invalid = ETF_REPLACE_TYPE::EPT_INVALID as u32,
+}
+impl_ffi_convert!(ETFReplaceType, ETF_REPLACE_TYPE, 7);
 
 /// 证券类型
 #[repr(u32)]
@@ -248,7 +252,7 @@ pub enum XTPTickerType {
     /// 未知类型
     Unknown = XTP_TICKER_TYPE::XTP_TICKER_TYPE_UNKNOWN as u32,
 }
-impl_ffi_convert!(XTPTickerType, XTP_TICKER_TYPE, 0, 6);
+impl_ffi_convert!(XTPTickerType, XTP_TICKER_TYPE, 6);
 
 /// 证券业务类型
 #[repr(u32)]
@@ -285,18 +289,22 @@ pub enum XTPBusinessType {
     /// 未知类型
     Unknown = XTP_BUSINESS_TYPE::XTP_BUSINESS_TYPE_UNKNOWN as u32,
 }
-impl_ffi_convert!(XTPBusinessType, XTP_BUSINESS_TYPE, 0, 13);
-// /// 账户类型
-// pub enum XTPAccountType {
-//     /// 普通账户
-//     Normal = 0,
-//     /// 信用账户
-//     Credit = 1,
-//     /// 衍生品账户
-//     Derive = 2,
-//     /// 未知账户类型
-//     Unknown = 3,
-// }
+impl_ffi_convert!(XTPBusinessType, XTP_BUSINESS_TYPE, 13);
+
+/// 账户类型
+#[repr(u32)]
+#[derive(Copy, Clone, Debug)]
+pub enum XTPAccountType {
+    /// 普通账户
+    Normal = XTP_ACCOUNT_TYPE::XTP_ACCOUNT_NORMAL as u32,
+    /// 信用账户
+    Credit = XTP_ACCOUNT_TYPE::XTP_ACCOUNT_CREDIT as u32,
+    /// 衍生品账户
+    Derive = XTP_ACCOUNT_TYPE::XTP_ACCOUNT_DERIVE as u32,
+    /// 未知账户类型
+    Unknown = XTP_ACCOUNT_TYPE::XTP_ACCOUNT_UNKNOWN as u32,
+}
+impl_ffi_convert!(XTPAccountType, XTP_ACCOUNT_TYPE, 3);
 
 /// 资金流转方向类型
 #[repr(u32)]
@@ -313,33 +321,39 @@ pub enum XTPFundTransferType {
     /// 未知类型
     TransferUnknown = XTP_FUND_TRANSFER_TYPE::XTP_FUND_TRANSFER_UNKNOWN as u32,
 }
-impl_ffi_convert!(XTPFundTransferType, XTP_FUND_TRANSFER_TYPE, 0, 4);
+impl_ffi_convert!(XTPFundTransferType, XTP_FUND_TRANSFER_TYPE, 4);
 
-// /// XTP_FUND_OPER_STATUS柜台资金操作结果
-// pub enum XTPFundOperStatus {
-//     /// XTP已收到，正在处理中
-//     PROCESSING = 0,
-//     /// 成功
-//     SUCCESS = 1,
-//     /// 失败
-//     FAILED = 2,
-//     /// 已提交到集中柜台处理
-//     SUBMITTED = 3,
-//     /// 未知
-//     UNKNOWN = 4,
-// }
+/// XTP_FUND_OPER_STATUS柜台资金操作结果
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum XTPFundOperStatus {
+    /// XTP已收到，正在处理中
+    PROCESSING = XTP_FUND_OPER_STATUS::XTP_FUND_OPER_PROCESSING as u32,
+    /// 成功
+    SUCCESS = XTP_FUND_OPER_STATUS::XTP_FUND_OPER_SUCCESS as u32,
+    /// 失败
+    FAILED = XTP_FUND_OPER_STATUS::XTP_FUND_OPER_FAILED as u32,
+    /// 已提交到集中柜台处理
+    SUBMITTED = XTP_FUND_OPER_STATUS::XTP_FUND_OPER_SUBMITTED as u32,
+    /// 未知
+    UNKNOWN = XTP_FUND_OPER_STATUS::XTP_FUND_OPER_UNKNOWN as u32,
+}
+impl_ffi_convert!(XTPFundOperStatus, XTP_FUND_OPER_STATUS, 4);
 
-// /// XTP_SPLIT_MERGE_STATUS是一个基金当天拆分合并状态类型
-// pub enum XTPSplitMergeStatus {
-//     /// 允许拆分和合并
-//     Allow = 0,
-//     /// 只允许拆分，不允许合并
-//     OnlySplit = 1,
-//     /// 只允许合并，不允许拆分
-//     OnlyMerge = 2,
-//     /// 不允许拆分合并
-//     Forbidden = 3,
-// }
+/// XTP_SPLIT_MERGE_STATUS是一个基金当天拆分合并状态类型
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum XTPSplitMergeStatus {
+    /// 允许拆分和合并
+    Allow = XTP_SPLIT_MERGE_STATUS::XTP_SPLIT_MERGE_STATUS_ALLOW as u32,
+    /// 只允许拆分，不允许合并
+    OnlySplit = XTP_SPLIT_MERGE_STATUS::XTP_SPLIT_MERGE_STATUS_ONLY_SPLIT as u32,
+    /// 只允许合并，不允许拆分
+    OnlyMerge = XTP_SPLIT_MERGE_STATUS::XTP_SPLIT_MERGE_STATUS_ONLY_MERGE as u32,
+    /// 不允许拆分合并
+    Forbidden = XTP_SPLIT_MERGE_STATUS::XTP_SPLIT_MERGE_STATUS_FORBIDDEN as u32,
+}
+impl_ffi_convert!(XTPSplitMergeStatus, XTP_SPLIT_MERGE_STATUS, 3);
 
 /// XTP_TBT_TYPE是一个逐笔回报类型
 #[repr(u32)]
@@ -352,65 +366,40 @@ pub enum XTPTbtType {
 }
 impl_ffi_convert!(XTPTbtType, XTP_TBT_TYPE, 1, 2);
 
-// /// XTP_OPT_CALL_OR_PUT_TYPE是一个认沽或认购类型
-// pub enum XTPOptCallOrPutType {
-//     /// 认购
-//     CALL = 1,
-//     /// 认沽
-//     PUT = 2,
-// }
+/// XTP_OPT_CALL_OR_PUT_TYPE是一个认沽或认购类型
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum XTPOptCallOrPutType {
+    /// 认购
+    CALL = XTP_OPT_CALL_OR_PUT_TYPE::XTP_OPT_CALL as u32,
+    /// 认沽
+    PUT = XTP_OPT_CALL_OR_PUT_TYPE::XTP_OPT_PUT as u32,
+}
+impl_ffi_convert!(XTPOptCallOrPutType, XTP_OPT_CALL_OR_PUT_TYPE, 1, 2);
 
-// /// XTP_OPT_EXERCISE_TYPE_TYPE是一个行权方式类型
+/// XTP_OPT_EXERCISE_TYPE_TYPE是一个行权方式类型
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum XTPOptExerciseTypeType {
+    EUR = XTP_OPT_EXERCISE_TYPE_TYPE::XTP_OPT_EXERCISE_TYPE_EUR as u32,
+    AME = XTP_OPT_EXERCISE_TYPE_TYPE::XTP_OPT_EXERCISE_TYPE_AME as u32,
+}
+impl_ffi_convert!(XTPOptExerciseTypeType, XTP_OPT_EXERCISE_TYPE_TYPE, 1, 2);
 
-// pub enum XTPOptExerciseTypeType {
-//     /// 欧式
-//     EUR = 1,
-//     /// 美式
-//     AME = 2,
-// }
-
-// /// XTP_POSITION_DIRECTION_TYPE是一个持仓方向类型
-// pub enum XTPPositionDirectionType {
-//     /// 净
-//     Net = 0,
-//     /// 多（期权则为权利方）
-//     Long = 1,
-//     /// 空（期权则为义务方）
-//     Short = 2,
-//     /// 备兑（期权则为备兑义务方）
-//     Covered = 3,
-// }
-
-// #[doc = "XTP_CRD_CASH_REPAY_STATUS是一个融资融券直接还款状态类型"]
-// pub enum XTPCrdCrStatus {
-//     ///  初始、未处理状态
-//     INIT = 0,
-//     ///  已成功处理状态
-//     SUCCESS = 1,
-//     ///  处理失败状态
-//     FAILED = 2,
-// }
-
-// /// TXTPTradeTypeType是成交类型类型
-// pub enum XTPTradeType {
-//     Common = b'0' as isize,
-//     Cash = b'1' as isize,
-//     Primary = b'2' as isize,
-//     CrossMktCash = b'3' as isize,
-// }
-
-// /// TXTPOrderTypeType是报单类型类型
-// pub enum XTPOrderType {
-//     Normal = '0' as isize,
-//     DeriveFromQuote = '1' as isize,
-//     DeriveFromCombination = '2' as isize,
-//     Combination = '3' as isize,
-//     ConditionalOrder = '4' as isize,
-//     Swap = '5' as isize,
-// }
-
-// pub const XTP_ERR_MSG_LEN: u32 = 124;
-// pub const XTP_ACCOUNT_PASSWORD_LEN: u32 = 64;
+/// XTP_POSITION_DIRECTION_TYPE是一个持仓方向类型
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum XTPPositionDirectionType {
+    /// 净
+    Net = XTP_POSITION_DIRECTION_TYPE::XTP_POSITION_DIRECTION_NET as u32,
+    /// 多（期权则为权利方）
+    Long = XTP_POSITION_DIRECTION_TYPE::XTP_POSITION_DIRECTION_LONG as u32,
+    /// 空（期权则为义务方）
+    Short = XTP_POSITION_DIRECTION_TYPE::XTP_POSITION_DIRECTION_SHORT as u32,
+    /// 备兑（期权则为备兑义务方）
+    Covered = XTP_POSITION_DIRECTION_TYPE::XTP_POSITION_DIRECTION_COVERED as u32,
+}
+impl_ffi_convert!(XTPPositionDirectionType, XTP_POSITION_DIRECTION_TYPE, 3);
 
 #[derive(Debug, Clone)]
 pub struct XTPRspInfoStruct {
@@ -887,28 +876,406 @@ impl FromRaw<&sys::XTPOrderInfo> for XTPOrderInfo {
     }
 }
 
-// #[derive(Debug, Copy, Clone)]
-// pub struct XTPTickByTickEntrust {
-//     pub channel_no: i32,
-//     pub seq: i64,
-//     pub price: f64,
-//     pub qty: i64,
-//     pub side: char,
-//     pub ord_type: char,
-// }
+#[derive(Clone, Debug)]
+pub struct XTPTradeReport {
+    pub order_xtp_id: u64,
+    pub order_client_id: u32,
+    pub ticker: String,
+    pub market: XTPMarketType,
+    pub local_order_id: u64,
+    pub exec_id: String,
+    pub price: f64,
+    pub quantity: i64,
+    pub trade_time: i64,
+    pub trade_amount: f64,
+    pub report_index: u64,
+    pub order_exch_id: String,
+    pub trade_type: TXTPTradeTypeType,
+    pub side: XTPSideType,
+    pub position_effect: XTPPositionEffectType,
+    pub business_type: XTPBusinessType,
+    pub branch_pbu: String,
+}
 
-// impl XTPTickByTickEntrust {
-//     pub unsafe fn from_raw(ob: &XTPOB) -> Self {
-//         XTPTickByTickEntrust {
-//             channel_no: ob.channel_no,
-//             seq: ob.seq,
-//             price: ob.price,
-//             qty: ob.qty,
-//             side: ob.side,
-//             ord_type: ob.ord_type,
-//         }
-//     }
-// }
+impl FromRaw<&sys::XTPTradeReport> for XTPTradeReport {
+    unsafe fn from_raw(r: &sys::XTPTradeReport) -> XTPTradeReport {
+        let union = transmute::<_, &XTPOrderInfoUnion>(&r.__bindgen_anon_1);
+
+        XTPTradeReport {
+            order_xtp_id: r.order_xtp_id,
+            order_client_id: r.order_client_id,
+            ticker: carray_to_string(&r.ticker),
+            market: XTPMarketType::from_raw(r.market),
+            local_order_id: r.local_order_id,
+            exec_id: carray_to_string(&r.exec_id),
+            price: r.price,
+            quantity: r.quantity,
+            trade_time: r.trade_time,
+            trade_amount: r.trade_amount,
+            report_index: r.report_index,
+            order_exch_id: carray_to_string(&r.order_exch_id),
+            trade_type: r.trade_type,
+            side: XTPSideType::from_raw(union.side),
+            position_effect: XTPPositionEffectType::from_raw(union.position_effect),
+            business_type: XTPBusinessType::from_raw(r.business_type),
+            branch_pbu: carray_to_string(&r.branch_pbu),
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct XTPOrderCancelInfo {
+    pub order_cancel_xtp_id: u64,
+    pub order_xtp_id: u64,
+}
+
+impl FromRaw<&sys::XTPOrderCancelInfo> for XTPOrderCancelInfo {
+    unsafe fn from_raw(r: &sys::XTPOrderCancelInfo) -> XTPOrderCancelInfo {
+        XTPOrderCancelInfo {
+            order_cancel_xtp_id: r.order_cancel_xtp_id,
+            order_xtp_id: r.order_xtp_id,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPQueryStkPositionRsp {
+    pub ticker: String,
+    pub ticker_name: String,
+    pub market: XTPMarketType,
+    pub total_qty: i64,
+    pub sellable_qty: i64,
+    pub avg_price: f64,
+    pub unrealized_pnl: f64,
+    pub yesterday_position: i64,
+    pub purchase_redeemable_qty: i64,
+    pub position_direction: XTPPositionDirectionType,
+    pub reserved1: u32,
+    pub executable_option: i64,
+    pub lockable_position: i64,
+    pub executable_underlying: i64,
+    pub locked_position: i64,
+    pub usable_locked_position: i64,
+}
+
+impl FromRaw<&sys::XTPQueryStkPositionRsp> for XTPQueryStkPositionRsp {
+    unsafe fn from_raw(r: &sys::XTPQueryStkPositionRsp) -> XTPQueryStkPositionRsp {
+        XTPQueryStkPositionRsp {
+            ticker: carray_to_string(&r.ticker),
+            ticker_name: carray_to_string(&r.ticker_name),
+            market: XTPMarketType::from_raw(r.market),
+            total_qty: r.total_qty,
+            sellable_qty: r.sellable_qty,
+            avg_price: r.avg_price,
+            unrealized_pnl: r.unrealized_pnl,
+            yesterday_position: r.yesterday_position,
+            purchase_redeemable_qty: r.purchase_redeemable_qty,
+            position_direction: XTPPositionDirectionType::from_raw(r.position_direction),
+            reserved1: r.reserved1,
+            executable_option: r.executable_option,
+            lockable_position: r.lockable_position,
+            executable_underlying: r.executable_underlying,
+            locked_position: r.locked_position,
+            usable_locked_position: r.usable_locked_position,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct XTPQueryAssetRsp {
+    pub total_asset: f64,
+    pub buying_power: f64,
+    pub security_asset: f64,
+    pub fund_buy_amount: f64,
+    pub fund_buy_fee: f64,
+    pub fund_sell_amount: f64,
+    pub fund_sell_fee: f64,
+    pub withholding_amount: f64,
+    pub account_type: XTPAccountType,
+    pub frozen_margin: f64,
+    pub frozen_exec_cash: f64,
+    pub frozen_exec_fee: f64,
+    pub pay_later: f64,
+    pub preadva_pay: f64,
+    pub orig_banlance: f64,
+    pub banlance: f64,
+    pub deposit_withdraw: f64,
+    pub trade_netting: f64,
+    pub captial_asset: f64,
+    pub force_freeze_amount: f64,
+    pub preferred_amount: f64,
+    pub repay_stock_aval_banlance: f64,
+}
+
+impl FromRaw<&sys::XTPQueryAssetRsp> for XTPQueryAssetRsp {
+    unsafe fn from_raw(r: &sys::XTPQueryAssetRsp) -> XTPQueryAssetRsp {
+        XTPQueryAssetRsp {
+            total_asset: r.total_asset,
+            buying_power: r.buying_power,
+            security_asset: r.security_asset,
+            fund_buy_amount: r.fund_buy_amount,
+            fund_buy_fee: r.fund_buy_fee,
+            fund_sell_amount: r.fund_sell_amount,
+            fund_sell_fee: r.fund_sell_fee,
+            withholding_amount: r.withholding_amount,
+            account_type: XTPAccountType::from_raw(r.account_type),
+            frozen_margin: r.frozen_margin,
+            frozen_exec_cash: r.frozen_exec_cash,
+            frozen_exec_fee: r.frozen_exec_fee,
+            pay_later: r.pay_later,
+            preadva_pay: r.preadva_pay,
+            orig_banlance: r.orig_banlance,
+            banlance: r.banlance,
+            deposit_withdraw: r.deposit_withdraw,
+            trade_netting: r.trade_netting,
+            captial_asset: r.captial_asset,
+            force_freeze_amount: r.force_freeze_amount,
+            preferred_amount: r.preferred_amount,
+            repay_stock_aval_banlance: r.repay_stock_aval_banlance,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPStructuredFundInfo {
+    pub exchange_id: XTPExchangeType,
+    pub sf_ticker: String,
+    pub sf_ticker_name: String,
+    pub ticker: String,
+    pub ticker_name: String,
+    pub split_merge_status: XTPSplitMergeStatus,
+    pub ratio: u32,
+    pub min_split_qty: u32,
+    pub min_merge_qty: u32,
+    pub net_price: f64,
+}
+
+impl FromRaw<&sys::XTPStructuredFundInfo> for XTPStructuredFundInfo {
+    unsafe fn from_raw(r: &sys::XTPStructuredFundInfo) -> XTPStructuredFundInfo {
+        XTPStructuredFundInfo {
+            exchange_id: XTPExchangeType::from_raw(r.exchange_id),
+            sf_ticker: carray_to_string(&r.sf_ticker),
+            sf_ticker_name: carray_to_string(&r.sf_ticker_name),
+            ticker: carray_to_string(&r.ticker),
+            ticker_name: carray_to_string(&r.ticker_name),
+            split_merge_status: XTPSplitMergeStatus::from_raw(r.split_merge_status),
+            ratio: r.ratio,
+            min_split_qty: r.min_split_qty,
+            min_merge_qty: r.min_merge_qty,
+            net_price: r.net_price,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct XTPFundTransferNotice {
+    pub serial_id: u64,
+    pub transfer_type: XTPFundTransferType,
+    pub amount: f64,
+    pub oper_status: XTPFundOperStatus,
+    pub transfer_time: u64,
+}
+
+impl FromRaw<&sys::XTPFundTransferNotice> for XTPFundTransferNotice {
+    unsafe fn from_raw(r: &sys::XTPFundTransferNotice) -> XTPFundTransferNotice {
+        XTPFundTransferNotice {
+            serial_id: r.serial_id,
+            transfer_type: XTPFundTransferType::from_raw(r.transfer_type),
+            amount: r.amount,
+            oper_status: XTPFundOperStatus::from_raw(r.oper_status),
+            transfer_time: r.transfer_time,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPQueryETFBaseRsp {
+    pub market: XTPMarketType,
+    pub etf: String,
+    pub subscribe_redemption_ticker: String,
+    pub unit: i32,
+    pub subscribe_status: i32,
+    pub redemption_status: i32,
+    pub max_cash_ratio: f64,
+    pub estimate_amount: f64,
+    pub cash_component: f64,
+    pub net_value: f64,
+    pub total_amount: f64,
+}
+
+impl FromRaw<&sys::XTPQueryETFBaseRsp> for XTPQueryETFBaseRsp {
+    unsafe fn from_raw(r: &sys::XTPQueryETFBaseRsp) -> XTPQueryETFBaseRsp {
+        XTPQueryETFBaseRsp {
+            market: XTPMarketType::from_raw(r.market),
+            etf: carray_to_string(&r.etf),
+            subscribe_redemption_ticker: carray_to_string(&r.subscribe_redemption_ticker),
+            unit: r.unit,
+            subscribe_status: r.subscribe_status,
+            redemption_status: r.redemption_status,
+            max_cash_ratio: r.max_cash_ratio,
+            estimate_amount: r.estimate_amount,
+            cash_component: r.cash_component,
+            net_value: r.net_value,
+            total_amount: r.total_amount,
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct XTPQueryETFComponentRsp {
+    pub market: XTPMarketType,
+    pub ticker: String,
+    pub component_ticker: String,
+    pub component_name: String,
+    pub quantity: i64,
+    pub component_market: XTPMarketType,
+    pub replace_type: ETFReplaceType,
+    pub premium_ratio: f64,
+    pub amount: f64,
+}
+
+impl FromRaw<&sys::XTPQueryETFComponentRsp> for XTPQueryETFComponentRsp {
+    unsafe fn from_raw(r: &sys::XTPQueryETFComponentRsp) -> XTPQueryETFComponentRsp {
+        XTPQueryETFComponentRsp {
+            market: XTPMarketType::from_raw(r.market),
+            ticker: carray_to_string(&r.ticker),
+            component_ticker: carray_to_string(&r.component_ticker),
+            component_name: carray_to_string(&r.component_name),
+            quantity: r.quantity,
+            component_market: XTPMarketType::from_raw(r.component_market),
+            replace_type: ETFReplaceType::from_raw(r.replace_type),
+            premium_ratio: r.premium_ratio,
+            amount: r.amount,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPQueryIPOTickerRsp {
+    pub market: XTPMarketType,
+    pub ticker: String,
+    pub ticker_name: String,
+    pub ticker_type: XTPTickerType,
+    pub price: f64,
+    pub unit: i32,
+    pub qty_upper_limit: i32,
+}
+
+impl FromRaw<&sys::XTPQueryIPOTickerRsp> for XTPQueryIPOTickerRsp {
+    unsafe fn from_raw(r: &sys::XTPQueryIPOTickerRsp) -> XTPQueryIPOTickerRsp {
+        XTPQueryIPOTickerRsp {
+            market: XTPMarketType::from_raw(r.market),
+            ticker: carray_to_string(&r.ticker),
+            ticker_name: carray_to_string(&r.ticker_name),
+            ticker_type: XTPTickerType::from_raw(r.ticker_type),
+            price: r.price,
+            unit: r.unit,
+            qty_upper_limit: r.qty_upper_limit,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPQueryIPOQuotaRsp {
+    pub market: XTPMarketType,
+    pub quantity: i32,
+    pub tech_quantity: i32,
+    pub unused: i32,
+}
+
+impl FromRaw<&sys::XTPQueryIPOQuotaRsp> for XTPQueryIPOQuotaRsp {
+    unsafe fn from_raw(r: &sys::XTPQueryIPOQuotaRsp) -> XTPQueryIPOQuotaRsp {
+        XTPQueryIPOQuotaRsp {
+            market: XTPMarketType::from_raw(r.market),
+            quantity: r.quantity,
+            tech_quantity: r.tech_quantity,
+            unused: r.unused,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct XTPQueryOptionAuctionInfoRsp {
+    pub ticker: String,
+    pub security_id_source: XTPMarketType,
+    pub symbol: String,
+    pub contract_id: String,
+    pub underlying_security_id: String,
+    pub underlying_security_id_source: XTPMarketType,
+    pub list_date: u32,
+    pub last_trade_date: u32,
+    pub ticker_type: XTPTickerType,
+    pub day_trading: i32,
+    pub call_or_put: XTPOptCallOrPutType,
+    pub delivery_day: u32,
+    pub delivery_month: u32,
+    pub exercise_type: XTPOptExerciseTypeType,
+    pub exercise_begin_date: u32,
+    pub exercise_end_date: u32,
+    pub exercise_price: f64,
+    pub qty_unit: i64,
+    pub contract_unit: i64,
+    pub contract_position: i64,
+    pub prev_close_price: f64,
+    pub prev_clearing_price: f64,
+    pub lmt_buy_max_qty: i64,
+    pub lmt_buy_min_qty: i64,
+    pub lmt_sell_max_qty: i64,
+    pub lmt_sell_min_qty: i64,
+    pub mkt_buy_max_qty: i64,
+    pub mkt_buy_min_qty: i64,
+    pub mkt_sell_max_qty: i64,
+    pub mkt_sell_min_qty: i64,
+    pub price_tick: f64,
+    pub upper_limit_price: f64,
+    pub lower_limit_price: f64,
+    pub sell_margin: f64,
+    pub margin_ratio_param1: f64,
+    pub margin_ratio_param2: f64,
+}
+
+impl FromRaw<&sys::XTPQueryOptionAuctionInfoRsp> for XTPQueryOptionAuctionInfoRsp {
+    unsafe fn from_raw(r: &sys::XTPQueryOptionAuctionInfoRsp) -> XTPQueryOptionAuctionInfoRsp {
+        XTPQueryOptionAuctionInfoRsp {
+            ticker: carray_to_string(&r.ticker),
+            security_id_source: XTPMarketType::from_raw(r.security_id_source),
+            symbol: carray_to_string(&r.symbol),
+            contract_id: carray_to_string(&r.contract_id),
+            underlying_security_id: carray_to_string(&r.underlying_security_id),
+            underlying_security_id_source: XTPMarketType::from_raw(r.underlying_security_id_source),
+            list_date: r.list_date,
+            last_trade_date: r.last_trade_date,
+            ticker_type: XTPTickerType::from_raw(r.ticker_type),
+            day_trading: r.day_trading,
+            call_or_put: XTPOptCallOrPutType::from_raw(r.call_or_put),
+            delivery_day: r.delivery_day,
+            delivery_month: r.delivery_month,
+            exercise_type: XTPOptExerciseTypeType::from_raw(r.exercise_type),
+            exercise_begin_date: r.exercise_begin_date,
+            exercise_end_date: r.exercise_end_date,
+            exercise_price: r.exercise_price,
+            qty_unit: r.qty_unit,
+            contract_unit: r.contract_unit,
+            contract_position: r.contract_position,
+            prev_close_price: r.prev_close_price,
+            prev_clearing_price: r.prev_clearing_price,
+            lmt_buy_max_qty: r.lmt_buy_max_qty,
+            lmt_buy_min_qty: r.lmt_buy_min_qty,
+            lmt_sell_max_qty: r.lmt_sell_max_qty,
+            lmt_sell_min_qty: r.lmt_sell_min_qty,
+            mkt_buy_max_qty: r.mkt_buy_max_qty,
+            mkt_buy_min_qty: r.mkt_buy_min_qty,
+            mkt_sell_max_qty: r.mkt_sell_max_qty,
+            mkt_sell_min_qty: r.mkt_sell_min_qty,
+            price_tick: r.price_tick,
+            upper_limit_price: r.upper_limit_price,
+            lower_limit_price: r.lower_limit_price,
+            sell_margin: r.sell_margin,
+            margin_ratio_param1: r.margin_ratio_param1,
+            margin_ratio_param2: r.margin_ratio_param2,
+        }
+    }
+}
 
 pub(crate) fn carray_to_string(ptr: &[i8]) -> String {
     let string = unsafe { CStr::from_ptr(ptr as *const [i8] as *const i8) };

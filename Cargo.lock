@@ -460,7 +460,7 @@ dependencies = [
 
 [[package]]
 name = "xtp"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 dependencies = [
  "bindgen 0.52.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "cc 1.0.46 (registry+https://github.com/rust-lang/crates.io-index)",
