@@ -11,8 +11,8 @@ use xtp::{
     XTPProtocolType, XTPRspInfoStruct, XTPSpecificTickerStruct, XTPTickByTickStruct,
 };
 
-type XTPST = XTPSpecificTickerStruct;
-type XTPRI = XTPRspInfoStruct;
+type XTPST<'a> = XTPSpecificTickerStruct<'a>;
+type XTPRI<'a> = XTPRspInfoStruct<'a>;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "example", about = "An example of xtp-rs usage.")]
