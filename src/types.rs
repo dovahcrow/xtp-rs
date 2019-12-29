@@ -39,18 +39,26 @@ macro_rules! impl_ffi_convert {
 
 pub type XTPOrderInfoUnion = XTPOrderInfo__bindgen_ty_1__bindgen_ty_1;
 
+/// XTP_LOG_LEVEL是日志输出级别类型
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPLogLevel {
+    /// 严重错误级别
     Fatal = XTP_LOG_LEVEL::XTP_LOG_LEVEL_FATAL as u32,
+    /// 错误级别
     Error = XTP_LOG_LEVEL::XTP_LOG_LEVEL_ERROR as u32,
+    /// 警告级别
     Warning = XTP_LOG_LEVEL::XTP_LOG_LEVEL_WARNING as u32,
+    /// info级别
     Info = XTP_LOG_LEVEL::XTP_LOG_LEVEL_INFO as u32,
+    /// debug级别
     Debug = XTP_LOG_LEVEL::XTP_LOG_LEVEL_DEBUG as u32,
+    /// trace级别
     Trace = XTP_LOG_LEVEL::XTP_LOG_LEVEL_TRACE as u32,
 }
 impl_ffi_convert!(XTPLogLevel, XTP_LOG_LEVEL, 5);
 
+/// XTP_PROTOCOL_TYPE是通讯传输协议方式
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPProtocolType {
@@ -59,9 +67,9 @@ pub enum XTPProtocolType {
     /// Use UDP transmission (only support market data)
     UDP = XTP_PROTOCOL_TYPE::XTP_PROTOCOL_UDP as u32,
 }
-
 impl_ffi_convert!(XTPProtocolType, XTP_PROTOCOL_TYPE, 1, 2);
 
+/// XTP_EXCHANGE_TYPE是交易所类型
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPExchangeType {
@@ -72,17 +80,17 @@ pub enum XTPExchangeType {
     /// Unknown
     Unknown = XTP_EXCHANGE_TYPE::XTP_EXCHANGE_UNKNOWN as u32,
 }
-
 impl_ffi_convert!(XTPExchangeType, XTP_EXCHANGE_TYPE, 1, 3);
 
+/// XTP_MARKET_TYPE市场类型
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPMarketType {
     /// Initializing or unknown
     MarketInit = XTP_MARKET_TYPE::XTP_MKT_INIT as u32,
-    /// Shenzhen A
+    /// Shenzhen A-shares
     SZA = XTP_MARKET_TYPE::XTP_MKT_SZ_A as u32,
-    /// Shanghai A
+    /// Shanghai A-shares
     SHA = XTP_MARKET_TYPE::XTP_MKT_SH_A as u32,
     /// Unknown market type
     UNKNOWN = XTP_MARKET_TYPE::XTP_MKT_UNKNOWN as u32,
@@ -92,11 +100,14 @@ impl_ffi_convert!(XTPMarketType, XTP_MARKET_TYPE, 3);
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPMarketdataType {
+    /// 现货(股票/基金/债券等)
     Actual = XTP_MARKETDATA_TYPE::XTP_MARKETDATA_ACTUAL as u32,
+    /// 期权
     Option = XTP_MARKETDATA_TYPE::XTP_MARKETDATA_OPTION as u32,
 }
 impl_ffi_convert!(XTPMarketdataType, XTP_MARKETDATA_TYPE, 1);
 
+/// XTP_PRICE_TYPE是价格类型
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPPriceType {
@@ -121,28 +132,45 @@ pub enum XTPPriceType {
 }
 impl_ffi_convert!(XTPPriceType, XTP_PRICE_TYPE, 1, 9);
 
+/// XTP_SIDE_TYPE是买卖方向类型
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPSideType {
+    /// 买（新股申购，ETF买，配股，信用交易中担保品买）
     Buy = XTP_SIDE_TYPE::XTP_SIDE_BUY as u8,
+    /// 卖（逆回购，ETF卖，信用交易中担保品卖）
     Sell = XTP_SIDE_TYPE::XTP_SIDE_SELL as u8,
+    /// 申购
     Purchase = XTP_SIDE_TYPE::XTP_SIDE_PURCHASE as u8,
+    /// 赎回
     Redemption = XTP_SIDE_TYPE::XTP_SIDE_REDEMPTION as u8,
+    /// 拆分
     Split = XTP_SIDE_TYPE::XTP_SIDE_SPLIT as u8,
+    /// 合并
     Merge = XTP_SIDE_TYPE::XTP_SIDE_MERGE as u8,
+    /// 改版之后的side的备兑，暂不支持
     Cover = XTP_SIDE_TYPE::XTP_SIDE_COVER as u8,
+    /// 改版之后的side锁定（对应开平标识为开）/解锁（对应开平标识为平）
     Freeze = XTP_SIDE_TYPE::XTP_SIDE_FREEZE as u8,
+    /// 融资买入
     MarginTrade = XTP_SIDE_TYPE::XTP_SIDE_MARGIN_TRADE as u8,
+    /// 融券卖出
     ShortSell = XTP_SIDE_TYPE::XTP_SIDE_SHORT_SELL as u8,
+    /// 卖券还款
     RepayMargin = XTP_SIDE_TYPE::XTP_SIDE_REPAY_MARGIN as u8,
+    /// 买券还券
     RepayStock = XTP_SIDE_TYPE::XTP_SIDE_REPAY_STOCK as u8,
+    /// 现券还券
     StockRepayStock = XTP_SIDE_TYPE::XTP_SIDE_STOCK_REPAY_STOCK as u8,
+    /// 余券划转
     SurstkTrans = XTP_SIDE_TYPE::XTP_SIDE_SURSTK_TRANS as u8,
+    /// 担保品转入
     GrtstkTransin = XTP_SIDE_TYPE::XTP_SIDE_GRTSTK_TRANSIN as u8,
+    /// 担保品转出
     GrtstkTransout = XTP_SIDE_TYPE::XTP_SIDE_GRTSTK_TRANSOUT as u8,
+    ///未知或者无效买卖方向
     Unknown = XTP_SIDE_TYPE::XTP_SIDE_UNKNOWN as u8,
 }
-
 impl_ffi_convert!(XTPSideType, XTP_SIDE_TYPE, 1, 30);
 
 #[repr(u8)]
@@ -294,7 +322,7 @@ impl_ffi_convert!(XTPBusinessType, XTP_BUSINESS_TYPE, 13);
 
 /// 账户类型
 #[repr(u32)]
-#[derive(Copy, Clone, Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPAccountType {
     /// 普通账户
     Normal = XTP_ACCOUNT_TYPE::XTP_ACCOUNT_NORMAL as u32,
@@ -309,7 +337,7 @@ impl_ffi_convert!(XTPAccountType, XTP_ACCOUNT_TYPE, 3);
 
 /// 资金流转方向类型
 #[repr(u32)]
-#[derive(Copy, Debug, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPFundTransferType {
     /// 转出 从XTP转出到柜台
     TransferOut = XTP_FUND_TRANSFER_TYPE::XTP_FUND_TRANSFER_OUT as u32,
@@ -402,7 +430,7 @@ pub enum XTPPositionDirectionType {
 }
 impl_ffi_convert!(XTPPositionDirectionType, XTP_POSITION_DIRECTION_TYPE, 3);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPRspInfoStruct<'a> {
     pub error_id: i32,
     pub error_msg: &'a CStr,
@@ -423,7 +451,7 @@ impl<'a> FromRaw<&'a XTPRI> for XTPRspInfoStruct<'a> {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPSpecificTickerStruct<'a> {
     pub exchange_id: XTPExchangeType,
     pub ticker: &'a CStr,
@@ -443,7 +471,7 @@ impl<'a> FromRaw<&'a XTPST> for XTPSpecificTickerStruct<'a> {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct OrderBookStruct<'a> {
     pub exchange_id: XTPExchangeType,
     pub ticker: &'a CStr,
@@ -476,7 +504,7 @@ impl<'a> FromRaw<&'a XTPOB> for OrderBookStruct<'a> {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPTickByTickStruct<'a> {
     pub exchange_id: XTPExchangeType,
     pub ticker: &'a CStr,
@@ -497,7 +525,7 @@ impl<'a> FromRaw<&'a XTPTBT> for XTPTickByTickStruct<'a> {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQuoteStaticInfo<'a> {
     pub exchange_id: XTPExchangeType,
     pub ticker: &'a CStr,
@@ -528,7 +556,7 @@ impl<'a> FromRaw<&'a XTPQSI> for XTPQuoteStaticInfo<'a> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPTickerPriceInfo<'a> {
     pub exchange_id: XTPExchangeType,
     pub ticker: &'a CStr,
@@ -545,7 +573,7 @@ impl<'a> FromRaw<&'a XTPTPI> for XTPTickerPriceInfo<'a> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPMarketDataStruct<'a> {
     pub exchange_id: XTPExchangeType,
     pub ticker: &'a CStr,
@@ -610,7 +638,7 @@ impl<'a> FromRaw<&'a XTPMD> for XTPMarketDataStruct<'a> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPOrderInsertInfo<'a> {
     pub order_xtp_id: u64,
     pub order_client_id: u32,
@@ -655,7 +683,7 @@ impl<'a> From<&'a XTPOrderInsertInfo<'a>> for sys::XTPOrderInsertInfo {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQueryOrderReq<'a> {
     pub ticker: &'a CStr,
     pub begin_time: i64,
@@ -689,7 +717,7 @@ impl From<&XTPQueryOrderByPageReq> for sys::XTPQueryOrderByPageReq {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQueryTraderReq<'a> {
     pub ticker: &'a CStr,
     pub begin_time: i64,
@@ -706,7 +734,7 @@ impl<'a> From<&'a XTPQueryTraderReq<'a>> for sys::XTPQueryTraderReq {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQueryTraderByPageReq {
     pub req_count: i64,
     pub reference: i64,
@@ -723,7 +751,7 @@ impl From<&XTPQueryTraderByPageReq> for sys::XTPQueryTraderByPageReq {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQueryStructuredFundInfoReq<'a> {
     pub exchange_id: XTPExchangeType,
     pub sf_ticker: &'a CStr,
@@ -738,7 +766,7 @@ impl<'a> From<&'a XTPQueryStructuredFundInfoReq<'a>> for sys::XTPQueryStructured
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPFundTransferReq<'a> {
     pub serial_id: u64,
     pub fund_account: &'a CStr,
@@ -772,7 +800,7 @@ impl From<&XTPQueryFundTransferLogReq> for sys::XTPQueryFundTransferLogReq {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQueryETFBaseReq<'a> {
     pub market: XTPMarketType,
     pub ticker: &'a CStr,
@@ -787,7 +815,7 @@ impl<'a> From<&'a XTPQueryETFBaseReq<'a>> for sys::XTPQueryETFBaseReq {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQueryETFComponentReq<'a> {
     pub market: XTPMarketType,
     pub ticker: &'a CStr,
@@ -802,7 +830,7 @@ impl<'a> From<&'a XTPQueryETFComponentReq<'a>> for sys::XTPQueryETFComponentReq 
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQueryOptionAuctionInfoReq<'a> {
     pub market: XTPMarketType,
     pub ticker: &'a CStr,
@@ -817,7 +845,7 @@ impl<'a> From<&'a XTPQueryOptionAuctionInfoReq<'a>> for sys::XTPQueryOptionAucti
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPOrderInfo<'a> {
     pub order_xtp_id: u64,
     pub order_client_id: u32,
@@ -874,7 +902,7 @@ impl<'a> FromRaw<&'a sys::XTPOrderInfo> for XTPOrderInfo<'a> {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPTradeReport<'a> {
     pub order_xtp_id: u64,
     pub order_client_id: u32,
@@ -936,7 +964,7 @@ impl FromRaw<&sys::XTPOrderCancelInfo> for XTPOrderCancelInfo {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQueryStkPositionRsp<'a> {
     pub ticker: &'a CStr,
     pub ticker_name: &'a CStr,
@@ -1034,7 +1062,7 @@ impl FromRaw<&sys::XTPQueryAssetRsp> for XTPQueryAssetRsp {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPStructuredFundInfo<'a> {
     pub exchange_id: XTPExchangeType,
     pub sf_ticker: &'a CStr,
@@ -1086,7 +1114,7 @@ impl<'a> FromRaw<&'a sys::XTPFundTransferNotice> for XTPFundTransferNotice {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQueryETFBaseRsp<'a> {
     pub market: XTPMarketType,
     pub etf: &'a CStr,
@@ -1121,7 +1149,7 @@ impl<'a> FromRaw<&'a sys::XTPQueryETFBaseRsp> for XTPQueryETFBaseRsp<'a> {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQueryETFComponentRsp<'a> {
     pub market: XTPMarketType,
     pub ticker: &'a CStr,
@@ -1150,7 +1178,7 @@ impl<'a> FromRaw<&'a sys::XTPQueryETFComponentRsp> for XTPQueryETFComponentRsp<'
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQueryIPOTickerRsp<'a> {
     pub market: XTPMarketType,
     pub ticker: &'a CStr,
@@ -1175,7 +1203,7 @@ impl<'a> FromRaw<&'a sys::XTPQueryIPOTickerRsp> for XTPQueryIPOTickerRsp<'a> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQueryIPOQuotaRsp {
     pub market: XTPMarketType,
     pub quantity: i32,
@@ -1194,7 +1222,7 @@ impl<'a> FromRaw<&'a sys::XTPQueryIPOQuotaRsp> for XTPQueryIPOQuotaRsp {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct XTPQueryOptionAuctionInfoRsp<'a> {
     pub ticker: &'a CStr,
     pub security_id_source: XTPMarketType,

@@ -165,6 +165,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnSubTickByTick(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_sub_tick_by_tick(ticker, error_info, is_last);
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnUnSubTickByTick(
     spi: *mut c_void,
@@ -177,12 +178,14 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnUnSubTickByTick(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_unsub_tick_by_tick(ticker, error_info, is_last);
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnTickByTick(spi: *mut c_void, tbt_data: *const XTPTBT) {
     let spi = unwrap_quote_spi(spi);
     let tbt_data = RXTPTBT::from_raw(&*tbt_data);
     spi.on_tick_by_tick(tbt_data);
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllMarketData(
     spi: *mut c_void,
@@ -194,6 +197,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllMarketData(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_subscribe_allmarket_data(exchange_id, error_info);
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllMarketData(
     spi: *mut c_void,
@@ -205,6 +209,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllMarketData(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_unsubscribe_allmarket_data(exchange_id, error_info);
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOrderBook(
     spi: *mut c_void,
@@ -216,6 +221,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOrderBook(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_subscribe_all_order_book(exchange_id, error_info);
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOrderBook(
     spi: *mut c_void,
@@ -227,6 +233,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOrderBook(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_unsubscribe_all_order_book(exchange_id, error_info);
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllTickByTick(
     spi: *mut c_void,
@@ -238,6 +245,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllTickByTick(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_subscribe_all_tick_by_tick(exchange_id, error_info)
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllTickByTick(
     spi: *mut c_void,
@@ -249,6 +257,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllTickByTick(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_unsubscribe_all_tick_by_tick(exchange_id, error_info);
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnQueryAllTickers(
     spi: *mut c_void,
@@ -261,6 +270,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnQueryAllTickers(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_query_alltickers(ticker_info, error_info, is_last);
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnQueryTickersPriceInfo(
     spi: *mut c_void,
@@ -273,6 +283,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnQueryTickersPriceInfo(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_querytickers_price_info(ticker_info, error_info, is_last);
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOptionMarketData(
     spi: *mut c_void,
@@ -284,6 +295,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOptionMarketData(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_subscribe_all_optionmarket_data(exchange_id, error_info)
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOptionMarketData(
     spi: *mut c_void,
@@ -295,6 +307,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOptionMarketData(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_unsubscribe_all_optionmarket_data(exchange_id, error_info)
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOptionOrderBook(
     spi: *mut c_void,
@@ -306,6 +319,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOptionOrderBook(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_subscribe_all_option_order_book(exchange_id, error_info)
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOptionOrderBook(
     spi: *mut c_void,
@@ -317,6 +331,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOptionOrderBook(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_unsubscribe_all_option_order_book(exchange_id, error_info)
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOptionTickByTick(
     spi: *mut c_void,
@@ -328,6 +343,7 @@ pub unsafe extern "C" fn QuoteSpiStub_Rust_OnSubscribeAllOptionTickByTick(
     let error_info = RXTPRI::from_raw(&*error_info);
     spi.on_subscribe_all_option_tick_by_tick(exchange_id, error_info);
 }
+
 #[no_mangle]
 pub unsafe extern "C" fn QuoteSpiStub_Rust_OnUnSubscribeAllOptionTickByTick(
     spi: *mut c_void,
