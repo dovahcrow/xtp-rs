@@ -1,21 +1,27 @@
 [package]
 name = "xtp"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 authors = ["Weiyuan Wu <doomsplayer@gmail.com>"]
 edition = "2018"
+license = "MIT"
+documentation = "https://docs.rs/xtp"
+repository = "https://github.com/dovahcrow/xtp-rs"
+description = "A Rust binding for XTP SDK (https://xtp.zts.com.cn)"
+keywords = ["XTP", "stock", "A-shares", "china", "trading"]
+categories = ["api-bindings"]
 
-[build-dependencies]
-bindgen = "0.52"
-cc = "1.0"
+include = ["src/**/*", "Cargo.toml", "sdk/bin/include/*", "build.rs"]
 
-[dependencies]
-libc = "0.2"
-failure = "0.1"
+[badges]
+travis-ci = { repository = "dovahcrow/xtp-rs", branch = "master" }
 
 [lib]
 name = "xtp"
 path = "src/lib.rs"
 
+[dependencies]
+libc = "0.2"
+failure = "0.1"
 
 [dev-dependencies]
 structopt = "0.3"
@@ -23,3 +29,7 @@ paw = "1"
 dotenv = "0.15"
 log = "0.4"
 env_logger = "0.7"
+
+[build-dependencies]
+bindgen = "0.52"
+cc = "1.0"
