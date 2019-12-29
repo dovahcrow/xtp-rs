@@ -20,15 +20,17 @@ pub use quote_spi::{
     QuoteSpiStub_Rust_OnUnSubscribeAllOptionTickByTick,
     QuoteSpiStub_Rust_OnUnSubscribeAllOrderBook,
 };
+pub use sys::{TXTPOrderTypeType, TXTPTradeTypeType};
 pub use trader_api::TraderApi;
 pub use trader_spi::TraderSpi;
 pub use types::{
-    OrderBookStruct, XTPExchangeType, XTPFundTransferNotice, XTPFundTransferNotice, XTPLogLevel,
-    XTPMarketDataStruct, XTPMarketType, XTPMarketdataType, XTPOrderActionStatusType,
+    OrderBookStruct, XTPAccountType, XTPBusinessType, XTPExchangeType, XTPFundOperStatus,
+    XTPFundTransferNotice, XTPFundTransferType, XTPLogLevel, XTPMarketDataStruct, XTPMarketType,
+    XTPMarketdataType, XTPOptCallOrPutType, XTPOptExerciseTypeType, XTPOrderActionStatusType,
     XTPOrderCancelInfo, XTPOrderInfo, XTPOrderStatusType, XTPOrderSubmitStatusType,
-    XTPPositionEffectType, XTPPriceType, XTPProtocolType, XTPQueryAssetRsp, XTPQueryETFBaseRsp,
-    XTPQueryETFComponentRsp, XTPQueryIPOQuotaRsp, XTPQueryIPOTickerRsp,
-    XTPQueryOptionAuctionInfoRsp, XTPQueryStkPositionRsp, XTPRspInfoStruct, XTPSideType,
-    XTPSpecificTickerStruct, XTPStructuredFundInfo, XTPTbtType, XTPTeResumeType,
-    XTPTickByTickStruct, XTPTickerType, XTPTradeReport, XTPTradeReport, XTPTradeReport,
+    XTPPositionDirectionType, XTPPositionEffectType, XTPPriceType, XTPProtocolType,
+    XTPQueryAssetRsp, XTPQueryETFBaseRsp, XTPQueryETFComponentRsp, XTPQueryIPOQuotaRsp,
+    XTPQueryIPOTickerRsp, XTPQueryOptionAuctionInfoRsp, XTPQueryStkPositionRsp, XTPRspInfoStruct,
+    XTPSideType, XTPSpecificTickerStruct, XTPSplitMergeStatus, XTPStructuredFundInfo, XTPTbtType,
+    XTPTeResumeType, XTPTickByTickStruct, XTPTickerType, XTPTradeReport,
 };

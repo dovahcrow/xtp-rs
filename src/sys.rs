@@ -46,12 +46,17 @@ pub enum XTP_POSITION_EFFECT_TYPE {
     XTP_POSITION_EFFECT_UNKNOWN = XTP_POSITION_EFFECT_UNKNOWN as u8,
 }
 
+/// TXTPTradeTypeType是成交类型类型
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum TXTPTradeTypeType {
+    /// 普通成交
     XTP_TRDT_COMMON = XTP_TRDT_COMMON,
+    /// 现金替代
     XTP_TRDT_CASH = XTP_TRDT_CASH,
+    ///一级市场成交
     XTP_TRDT_PRIMARY = XTP_TRDT_PRIMARY,
+    /// 跨市场资金成交
     XTP_TRDT_CROSS_MKT_CASH = XTP_TRDT_CROSS_MKT_CASH,
 }
 
