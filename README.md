@@ -1,4 +1,4 @@
-# xtp: A rust binding for [XTP SDK](http://xtp.zts.com.cn) ![travis]
+# xtp: A rust binding for [XTP SDK](http://xtp.zts.com.cn) ![travis] [![docs.rs badge]][docs.rs link] [![Latest Version]][crates.io] 
 
 This library is a binding for the [XTP SDK](http://xtp.zts.com.cn), which is an interface for trading on the Chinese stock market.
 
@@ -22,3 +22,7 @@ This project is currently in its *alpha* stage.
 Check the `examples` folder for usages.
 
 [travis]: https://img.shields.io/travis/dovahcrow/xtp-rs/master?style=flat-square
+[docs.rs badge]: https://docs.rs/xtp/badge.svg
+[docs.rs link]: https://docs.rs/xtp/
+[crates.io]: https://crates.io/crates/xtp
+[Latest Version]: https://img.shields.io/crates/v/xtp.svg
