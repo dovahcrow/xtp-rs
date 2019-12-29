@@ -29,6 +29,77 @@ pub struct QuoteApi {
 }
 
 impl QuoteApi {
+    pub fn new(id: u8, path: &str, log_level: types::XTPLogLevel) -> QuoteApi {
+        let cpath = CString::new(path);
+        let quote_api = unsafe {
+            CreateQuoteApi(
+                id,
+                cpath.unwrap().as_c_str().as_ptr(),
+                transmute::<_, XTP_LOG_LEVEL>(log_level),
+            )
+        };
+
+        QuoteApi {
+            quote_api,
+            quote_spi_stub: None,
+        }
+    }
+    fn translate_code(&mut self, code: i32) -> Fallible<()> {
+        if code != 0 {
+            let underlying_error = self.get_api_last_error();
+            Err(XTPError::XTPClientError {
+                error_id: underlying_error.error_id as i64,
+                error_msg: underlying_error.error_msg,
+            })?;
+        }
+        Ok(())
+    }
+
+    fn call_by_tickers(
+        &mut self,
+        func: unsafe extern "C" fn(
+            self_: *mut XTP_API_QuoteApi,
+            ticker: *mut *mut c_char,
+            count: i32,
+            exchange_id: XTP_EXCHANGE_TYPE,
+        ) -> i32,
+        tickers: &[&str],
+        exchange_id: types::XTPExchangeType,
+    ) -> Fallible<()> {
+        let mut cstring_tickers: Vec<_> = tickers
+            .into_iter()
+            .map(|ticker| CString::new(*ticker).unwrap().into_raw())
+            .collect();
+
+        let ret_code = unsafe {
+            func(
+                self.quote_api,
+                cstring_tickers.as_mut_ptr(),
+                cstring_tickers.len() as i32,
+                exchange_id.into(),
+            )
+        };
+
+        for ticker_ptr in cstring_tickers {
+            unsafe { CString::from_raw(ticker_ptr) };
+        }
+        self.translate_code(ret_code)
+    }
+
+    fn call_by_exchange(
+        &mut self,
+        func: unsafe extern "C" fn(
+            self_: *mut XTP_API_QuoteApi,
+            exchange_id: XTP_EXCHANGE_TYPE,
+        ) -> i32,
+        exchange_id: types::XTPExchangeType,
+    ) -> Fallible<()> {
+        let ret_code = unsafe { func(self.quote_api, exchange_id.into()) };
+        self.translate_code(ret_code)
+    }
+}
+
+impl QuoteApi {
     fn release(&mut self) {
         unsafe { QuoteApi_Release(self.quote_api) };
     }
@@ -242,77 +313,6 @@ impl QuoteApi {
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_UnSubscribeAllOptionTickByTick, exchange_id)
-    }
-}
-
-impl QuoteApi {
-    pub fn new(id: u8, path: &str, log_level: types::XTPLogLevel) -> QuoteApi {
-        let cpath = CString::new(path);
-        let quote_api = unsafe {
-            CreateQuoteApi(
-                id,
-                cpath.unwrap().as_c_str().as_ptr(),
-                transmute::<_, XTP_LOG_LEVEL>(log_level),
-            )
-        };
-
-        QuoteApi {
-            quote_api,
-            quote_spi_stub: None,
-        }
-    }
-    fn translate_code(&mut self, code: i32) -> Fallible<()> {
-        if code != 0 {
-            let underlying_error = self.get_api_last_error();
-            Err(XTPError::XTPClientError {
-                error_id: underlying_error.error_id as i64,
-                error_msg: underlying_error.error_msg,
-            })?;
-        }
-        Ok(())
-    }
-
-    fn call_by_tickers(
-        &mut self,
-        func: unsafe extern "C" fn(
-            self_: *mut XTP_API_QuoteApi,
-            ticker: *mut *mut c_char,
-            count: i32,
-            exchange_id: XTP_EXCHANGE_TYPE,
-        ) -> i32,
-        tickers: &[&str],
-        exchange_id: types::XTPExchangeType,
-    ) -> Fallible<()> {
-        let mut cstring_tickers: Vec<_> = tickers
-            .into_iter()
-            .map(|ticker| CString::new(*ticker).unwrap().into_raw())
-            .collect();
-
-        let ret_code = unsafe {
-            func(
-                self.quote_api,
-                cstring_tickers.as_mut_ptr(),
-                cstring_tickers.len() as i32,
-                exchange_id.into(),
-            )
-        };
-
-        for ticker_ptr in cstring_tickers {
-            unsafe { CString::from_raw(ticker_ptr) };
-        }
-        self.translate_code(ret_code)
-    }
-
-    fn call_by_exchange(
-        &mut self,
-        func: unsafe extern "C" fn(
-            self_: *mut XTP_API_QuoteApi,
-            exchange_id: XTP_EXCHANGE_TYPE,
-        ) -> i32,
-        exchange_id: types::XTPExchangeType,
-    ) -> Fallible<()> {
-        let ret_code = unsafe { func(self.quote_api, exchange_id.into()) };
-        self.translate_code(ret_code)
     }
 }
 

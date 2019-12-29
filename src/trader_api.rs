@@ -27,6 +27,36 @@ pub struct TraderApi {
 }
 
 impl TraderApi {
+    pub fn new(id: u8, path: &str, log_level: types::XTPLogLevel) -> TraderApi {
+        let cpath = CString::new(path);
+        let trader_api = unsafe {
+            CreateTraderApi(
+                id,
+                cpath.unwrap().as_c_str().as_ptr(),
+                transmute::<_, XTP_LOG_LEVEL>(log_level),
+            )
+        };
+
+        TraderApi {
+            trader_api,
+            trader_spi_stub: None,
+        }
+    }
+
+    fn translate_code(&mut self, code: i64, zero_ok: bool) -> Fallible<i64> {
+        if (code == 0) == zero_ok {
+            return Ok(code);
+        }
+
+        let underlying_error = self.get_api_last_error();
+        Err(XTPError::XTPClientError {
+            error_id: underlying_error.error_id as i64,
+            error_msg: underlying_error.error_msg,
+        })?
+    }
+}
+
+impl TraderApi {
     fn release(&mut self) {
         unsafe { TraderApi_Release(self.trader_api) };
     }
@@ -359,36 +389,6 @@ impl TraderApi {
             )
         };
         self.translate_code(retc as i64, true)
-    }
-}
-
-impl TraderApi {
-    pub fn new(id: u8, path: &str, log_level: types::XTPLogLevel) -> TraderApi {
-        let cpath = CString::new(path);
-        let trader_api = unsafe {
-            CreateTraderApi(
-                id,
-                cpath.unwrap().as_c_str().as_ptr(),
-                transmute::<_, XTP_LOG_LEVEL>(log_level),
-            )
-        };
-
-        TraderApi {
-            trader_api,
-            trader_spi_stub: None,
-        }
-    }
-
-    fn translate_code(&mut self, code: i64, zero_ok: bool) -> Fallible<i64> {
-        if (code == 0) == zero_ok {
-            return Ok(code);
-        }
-
-        let underlying_error = self.get_api_last_error();
-        Err(XTPError::XTPClientError {
-            error_id: underlying_error.error_id as i64,
-            error_msg: underlying_error.error_msg,
-        })?
     }
 }
 

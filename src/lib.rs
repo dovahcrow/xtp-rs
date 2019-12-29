@@ -23,8 +23,12 @@ pub use quote_spi::{
 pub use trader_api::TraderApi;
 pub use trader_spi::TraderSpi;
 pub use types::{
-    OrderBookStruct, XTPExchangeType, XTPLogLevel, XTPMarketDataStruct, XTPMarketType,
-    XTPMarketdataType, XTPOrderActionStatusType, XTPOrderStatusType, XTPOrderSubmitStatusType,
-    XTPPositionEffectType, XTPPriceType, XTPProtocolType, XTPRspInfoStruct, XTPSideType,
-    XTPSpecificTickerStruct, XTPTbtType, XTPTeResumeType, XTPTickByTickStruct, XTPTickerType,
+    OrderBookStruct, XTPExchangeType, XTPFundTransferNotice, XTPFundTransferNotice, XTPLogLevel,
+    XTPMarketDataStruct, XTPMarketType, XTPMarketdataType, XTPOrderActionStatusType,
+    XTPOrderCancelInfo, XTPOrderInfo, XTPOrderStatusType, XTPOrderSubmitStatusType,
+    XTPPositionEffectType, XTPPriceType, XTPProtocolType, XTPQueryAssetRsp, XTPQueryETFBaseRsp,
+    XTPQueryETFComponentRsp, XTPQueryIPOQuotaRsp, XTPQueryIPOTickerRsp,
+    XTPQueryOptionAuctionInfoRsp, XTPQueryStkPositionRsp, XTPRspInfoStruct, XTPSideType,
+    XTPSpecificTickerStruct, XTPStructuredFundInfo, XTPTbtType, XTPTeResumeType,
+    XTPTickByTickStruct, XTPTickerType, XTPTradeReport, XTPTradeReport, XTPTradeReport,
 };
