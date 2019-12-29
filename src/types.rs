@@ -9,6 +9,7 @@ use crate::sys::{
     XTP_POSITION_DIRECTION_TYPE, XTP_POSITION_EFFECT_TYPE, XTP_PRICE_TYPE, XTP_PROTOCOL_TYPE,
     XTP_SIDE_TYPE, XTP_SPLIT_MERGE_STATUS, XTP_TBT_TYPE, XTP_TE_RESUME_TYPE, XTP_TICKER_TYPE,
 };
+use libc::c_char;
 use std::ffi::CStr;
 use std::mem::transmute;
 
@@ -402,53 +403,50 @@ pub enum XTPPositionDirectionType {
 impl_ffi_convert!(XTPPositionDirectionType, XTP_POSITION_DIRECTION_TYPE, 3);
 
 #[derive(Debug, Clone)]
-pub struct XTPRspInfoStruct {
+pub struct XTPRspInfoStruct<'a> {
     pub error_id: i32,
-    pub error_msg: String,
+    pub error_msg: &'a CStr,
 }
 
-impl FromRaw<&XTPRI> for XTPRspInfoStruct {
+impl<'a> FromRaw<&'a XTPRI> for XTPRspInfoStruct<'a> {
     unsafe fn from_raw(
         XTPRI {
             error_id,
             error_msg,
-        }: &XTPRI,
+        }: &'a XTPRI,
     ) -> Self {
-        let error_msg = CStr::from_ptr(error_msg as *const [i8] as *const i8);
+        let error_msg = FromCBuf::from_c_buf(error_msg.as_ref());
         XTPRspInfoStruct {
             error_id: *error_id,
-            error_msg: error_msg.to_owned().to_string_lossy().to_string(),
+            error_msg: error_msg,
         }
     }
 }
 
 #[derive(Clone, Debug)]
-pub struct XTPSpecificTickerStruct {
+pub struct XTPSpecificTickerStruct<'a> {
     pub exchange_id: XTPExchangeType,
-    pub ticker: String,
+    pub ticker: &'a CStr,
 }
 
-impl FromRaw<&XTPST> for XTPSpecificTickerStruct {
+impl<'a> FromRaw<&'a XTPST> for XTPSpecificTickerStruct<'a> {
     unsafe fn from_raw(
         XTPST {
             exchange_id,
             ticker,
-        }: &XTPST,
+        }: &'a XTPST,
     ) -> Self {
-        let exchange_id = XTPExchangeType::from_raw(*exchange_id);
-        let ticker = CStr::from_ptr(ticker as *const [i8] as *const i8);
-        let ticker = ticker.to_owned().to_string_lossy().to_string();
         XTPSpecificTickerStruct {
-            exchange_id,
-            ticker,
+            exchange_id: XTPExchangeType::from_raw(*exchange_id),
+            ticker: FromCBuf::from_c_buf(ticker.as_ref()),
         }
     }
 }
 
 #[derive(Clone, Debug)]
-pub struct OrderBookStruct {
+pub struct OrderBookStruct<'a> {
     pub exchange_id: XTPExchangeType,
-    pub ticker: String,
+    pub ticker: &'a CStr,
     pub last_price: f64,
     pub qty: i64,
     pub turnover: f64,
@@ -460,11 +458,11 @@ pub struct OrderBookStruct {
     pub data_time: i64,
 }
 
-impl FromRaw<&XTPOB> for OrderBookStruct {
-    unsafe fn from_raw(ob: &XTPOB) -> Self {
+impl<'a> FromRaw<&'a XTPOB> for OrderBookStruct<'a> {
+    unsafe fn from_raw(ob: &'a XTPOB) -> Self {
         OrderBookStruct {
             exchange_id: XTPExchangeType::from_raw(ob.exchange_id),
-            ticker: carray_to_string(&ob.ticker),
+            ticker: FromCBuf::from_c_buf(ob.ticker.as_ref()),
             last_price: ob.last_price,
             qty: ob.qty,
             turnover: ob.turnover,
@@ -479,19 +477,19 @@ impl FromRaw<&XTPOB> for OrderBookStruct {
 }
 
 #[derive(Clone, Debug)]
-pub struct XTPTickByTickStruct {
+pub struct XTPTickByTickStruct<'a> {
     pub exchange_id: XTPExchangeType,
-    pub ticker: String,
+    pub ticker: &'a CStr,
     pub seq: i64,
     pub data_time: i64,
     pub r#type: XTPTbtType,
 }
 
-impl FromRaw<&XTPTBT> for XTPTickByTickStruct {
-    unsafe fn from_raw(tbt: &XTPTBT) -> Self {
+impl<'a> FromRaw<&'a XTPTBT> for XTPTickByTickStruct<'a> {
+    unsafe fn from_raw(tbt: &'a XTPTBT) -> Self {
         XTPTickByTickStruct {
             exchange_id: XTPExchangeType::from_raw(tbt.exchange_id),
-            ticker: carray_to_string(&tbt.ticker),
+            ticker: FromCBuf::from_c_buf(tbt.ticker.as_ref()),
             seq: tbt.seq,
             data_time: tbt.data_time,
             r#type: XTPTbtType::from_raw(tbt.type_),
@@ -500,10 +498,10 @@ impl FromRaw<&XTPTBT> for XTPTickByTickStruct {
 }
 
 #[derive(Clone, Debug)]
-pub struct XTPQuoteStaticInfo {
+pub struct XTPQuoteStaticInfo<'a> {
     pub exchange_id: XTPExchangeType,
-    pub ticker: String,
-    pub ticker_name: String,
+    pub ticker: &'a CStr,
+    pub ticker_name: &'a CStr,
     pub ticker_type: XTPTickerType,
     pub pre_close_price: f64,
     pub upper_limit_price: f64,
@@ -513,12 +511,12 @@ pub struct XTPQuoteStaticInfo {
     pub sell_qty_unit: i32,
 }
 
-impl FromRaw<&XTPQSI> for XTPQuoteStaticInfo {
-    unsafe fn from_raw(qsi: &XTPQSI) -> Self {
+impl<'a> FromRaw<&'a XTPQSI> for XTPQuoteStaticInfo<'a> {
+    unsafe fn from_raw(qsi: &'a XTPQSI) -> Self {
         XTPQuoteStaticInfo {
             exchange_id: XTPExchangeType::from_raw(qsi.exchange_id),
-            ticker: carray_to_string(&qsi.ticker),
-            ticker_name: carray_to_string(&qsi.ticker_name),
+            ticker: FromCBuf::from_c_buf(qsi.ticker.as_ref()),
+            ticker_name: FromCBuf::from_c_buf(qsi.ticker_name.as_ref()),
             ticker_type: XTPTickerType::from_raw(qsi.ticker_type),
             pre_close_price: qsi.pre_close_price,
             upper_limit_price: qsi.upper_limit_price,
@@ -531,26 +529,26 @@ impl FromRaw<&XTPQSI> for XTPQuoteStaticInfo {
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPTickerPriceInfo {
+pub struct XTPTickerPriceInfo<'a> {
     pub exchange_id: XTPExchangeType,
-    pub ticker: String,
+    pub ticker: &'a CStr,
     pub last_price: f64,
 }
 
-impl FromRaw<&XTPTPI> for XTPTickerPriceInfo {
-    unsafe fn from_raw(tpi: &XTPTPI) -> Self {
+impl<'a> FromRaw<&'a XTPTPI> for XTPTickerPriceInfo<'a> {
+    unsafe fn from_raw(tpi: &'a XTPTPI) -> Self {
         XTPTickerPriceInfo {
             exchange_id: XTPExchangeType::from_raw(tpi.exchange_id),
-            ticker: carray_to_string(&tpi.ticker),
+            ticker: FromCBuf::from_c_buf(tpi.ticker.as_ref()),
             last_price: tpi.last_price,
         }
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPMarketDataStruct {
+pub struct XTPMarketDataStruct<'a> {
     pub exchange_id: XTPExchangeType,
-    pub ticker: String,
+    pub ticker: &'a CStr,
     pub last_price: f64,
     pub pre_close_price: f64,
     pub open_price: f64,
@@ -574,15 +572,15 @@ pub struct XTPMarketDataStruct {
     pub bid_qty: [i64; 10usize],
     pub ask_qty: [i64; 10usize],
     pub trades_count: i64,
-    pub ticker_status: String,
+    pub ticker_status: &'a CStr,
     pub data_type: XTPMarketdataType,
 }
 
-impl FromRaw<&XTPMD> for XTPMarketDataStruct {
-    unsafe fn from_raw(md: &XTPMD) -> Self {
+impl<'a> FromRaw<&'a XTPMD> for XTPMarketDataStruct<'a> {
+    unsafe fn from_raw(md: &'a XTPMD) -> Self {
         XTPMarketDataStruct {
             exchange_id: XTPExchangeType::from_raw(md.exchange_id),
-            ticker: carray_to_string(&md.ticker),
+            ticker: FromCBuf::from_c_buf(md.ticker.as_ref()),
             last_price: md.last_price,
             pre_close_price: md.pre_close_price,
             open_price: md.open_price,
@@ -606,17 +604,17 @@ impl FromRaw<&XTPMD> for XTPMarketDataStruct {
             bid_qty: md.bid_qty,
             ask_qty: md.ask_qty,
             trades_count: md.trades_count,
-            ticker_status: carray_to_string(&md.ticker_status),
+            ticker_status: FromCBuf::from_c_buf(md.ticker_status.as_ref()),
             data_type: XTPMarketdataType::from_raw(md.data_type),
         }
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPOrderInsertInfo {
+pub struct XTPOrderInsertInfo<'a> {
     pub order_xtp_id: u64,
     pub order_client_id: u32,
-    pub ticker: String,
+    pub ticker: &'a CStr,
     pub market: XTPMarketType,
     pub price: f64,
     pub stop_price: f64,
@@ -627,8 +625,8 @@ pub struct XTPOrderInsertInfo {
     pub business_type: XTPBusinessType,
 }
 
-impl From<&XTPOrderInsertInfo> for sys::XTPOrderInsertInfo {
-    fn from(r: &XTPOrderInsertInfo) -> sys::XTPOrderInsertInfo {
+impl<'a> From<&'a XTPOrderInsertInfo<'a>> for sys::XTPOrderInsertInfo {
+    fn from(r: &'a XTPOrderInsertInfo) -> sys::XTPOrderInsertInfo {
         let union = unsafe {
             XTPOrderInsertInfo__bindgen_ty_1 {
                 u32: __BindgenUnionField::new(),
@@ -645,7 +643,7 @@ impl From<&XTPOrderInsertInfo> for sys::XTPOrderInsertInfo {
         sys::XTPOrderInsertInfo {
             order_xtp_id: r.order_xtp_id,
             order_client_id: r.order_client_id,
-            ticker: string_to_carray16(&r.ticker),
+            ticker: r.ticker.to_c_buf16(),
             market: r.market.into(),
             price: r.price,
             stop_price: r.stop_price,
@@ -658,16 +656,16 @@ impl From<&XTPOrderInsertInfo> for sys::XTPOrderInsertInfo {
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPQueryOrderReq {
-    pub ticker: String,
+pub struct XTPQueryOrderReq<'a> {
+    pub ticker: &'a CStr,
     pub begin_time: i64,
     pub end_time: i64,
 }
 
-impl From<&XTPQueryOrderReq> for sys::XTPQueryOrderReq {
+impl<'a> From<&'a XTPQueryOrderReq<'a>> for sys::XTPQueryOrderReq {
     fn from(r: &XTPQueryOrderReq) -> sys::XTPQueryOrderReq {
         sys::XTPQueryOrderReq {
-            ticker: string_to_carray16(&r.ticker),
+            ticker: r.ticker.to_c_buf16(),
             begin_time: r.begin_time,
             end_time: r.end_time,
         }
@@ -692,16 +690,16 @@ impl From<&XTPQueryOrderByPageReq> for sys::XTPQueryOrderByPageReq {
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPQueryTraderReq {
-    pub ticker: String,
+pub struct XTPQueryTraderReq<'a> {
+    pub ticker: &'a CStr,
     pub begin_time: i64,
     pub end_time: i64,
 }
 
-impl From<&XTPQueryTraderReq> for sys::XTPQueryTraderReq {
+impl<'a> From<&'a XTPQueryTraderReq<'a>> for sys::XTPQueryTraderReq {
     fn from(r: &XTPQueryTraderReq) -> sys::XTPQueryTraderReq {
         sys::XTPQueryTraderReq {
-            ticker: string_to_carray16(&r.ticker),
+            ticker: r.ticker.to_c_buf16(),
             begin_time: r.begin_time,
             end_time: r.end_time,
         }
@@ -726,35 +724,35 @@ impl From<&XTPQueryTraderByPageReq> for sys::XTPQueryTraderByPageReq {
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPQueryStructuredFundInfoReq {
+pub struct XTPQueryStructuredFundInfoReq<'a> {
     pub exchange_id: XTPExchangeType,
-    pub sf_ticker: String,
+    pub sf_ticker: &'a CStr,
 }
 
-impl From<&XTPQueryStructuredFundInfoReq> for sys::XTPQueryStructuredFundInfoReq {
-    fn from(r: &XTPQueryStructuredFundInfoReq) -> sys::XTPQueryStructuredFundInfoReq {
+impl<'a> From<&'a XTPQueryStructuredFundInfoReq<'a>> for sys::XTPQueryStructuredFundInfoReq {
+    fn from(r: &'a XTPQueryStructuredFundInfoReq) -> sys::XTPQueryStructuredFundInfoReq {
         sys::XTPQueryStructuredFundInfoReq {
             exchange_id: r.exchange_id.into(),
-            sf_ticker: string_to_carray16(&r.sf_ticker),
+            sf_ticker: r.sf_ticker.to_c_buf16(),
         }
     }
 }
 
 #[derive(Clone)]
-pub struct XTPFundTransferReq {
+pub struct XTPFundTransferReq<'a> {
     pub serial_id: u64,
-    pub fund_account: String,
-    pub password: String,
+    pub fund_account: &'a CStr,
+    pub password: &'a CStr,
     pub amount: f64,
     pub transfer_type: XTPFundTransferType,
 }
 
-impl From<&XTPFundTransferReq> for sys::XTPFundTransferReq {
-    fn from(r: &XTPFundTransferReq) -> sys::XTPFundTransferReq {
+impl<'a> From<&'a XTPFundTransferReq<'a>> for sys::XTPFundTransferReq {
+    fn from(r: &'a XTPFundTransferReq) -> sys::XTPFundTransferReq {
         sys::XTPFundTransferReq {
             serial_id: r.serial_id,
-            fund_account: string_to_carray16(&r.fund_account),
-            password: string_to_carray64(&r.password),
+            fund_account: r.fund_account.to_c_buf16(),
+            password: r.password.to_c_buf64(),
             amount: r.amount,
             transfer_type: r.transfer_type.into(),
         }
@@ -775,57 +773,57 @@ impl From<&XTPQueryFundTransferLogReq> for sys::XTPQueryFundTransferLogReq {
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPQueryETFBaseReq {
+pub struct XTPQueryETFBaseReq<'a> {
     pub market: XTPMarketType,
-    pub ticker: String,
+    pub ticker: &'a CStr,
 }
 
-impl From<&XTPQueryETFBaseReq> for sys::XTPQueryETFBaseReq {
+impl<'a> From<&'a XTPQueryETFBaseReq<'a>> for sys::XTPQueryETFBaseReq {
     fn from(r: &XTPQueryETFBaseReq) -> sys::XTPQueryETFBaseReq {
         sys::XTPQueryETFBaseReq {
             market: r.market.into(),
-            ticker: string_to_carray16(&r.ticker),
+            ticker: r.ticker.to_c_buf16(),
         }
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPQueryETFComponentReq {
+pub struct XTPQueryETFComponentReq<'a> {
     pub market: XTPMarketType,
-    pub ticker: String,
+    pub ticker: &'a CStr,
 }
 
-impl From<&XTPQueryETFComponentReq> for sys::XTPQueryETFComponentReq {
+impl<'a> From<&'a XTPQueryETFComponentReq<'a>> for sys::XTPQueryETFComponentReq {
     fn from(r: &XTPQueryETFComponentReq) -> sys::XTPQueryETFComponentReq {
         sys::XTPQueryETFComponentReq {
             market: r.market.into(),
-            ticker: string_to_carray16(&r.ticker),
+            ticker: r.ticker.to_c_buf16(),
         }
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPQueryOptionAuctionInfoReq {
+pub struct XTPQueryOptionAuctionInfoReq<'a> {
     pub market: XTPMarketType,
-    pub ticker: String,
+    pub ticker: &'a CStr,
 }
 
-impl From<&XTPQueryOptionAuctionInfoReq> for sys::XTPQueryOptionAuctionInfoReq {
+impl<'a> From<&'a XTPQueryOptionAuctionInfoReq<'a>> for sys::XTPQueryOptionAuctionInfoReq {
     fn from(r: &XTPQueryOptionAuctionInfoReq) -> sys::XTPQueryOptionAuctionInfoReq {
         sys::XTPQueryOptionAuctionInfoReq {
             market: r.market.into(),
-            ticker: string_to_carray16(&r.ticker),
+            ticker: r.ticker.to_c_buf16(),
         }
     }
 }
 
 #[derive(Clone, Debug)]
-pub struct XTPOrderInfo {
+pub struct XTPOrderInfo<'a> {
     pub order_xtp_id: u64,
     pub order_client_id: u32,
     pub order_cancel_client_id: u32,
     pub order_cancel_xtp_id: u64,
-    pub ticker: String,
+    pub ticker: &'a CStr,
     pub market: XTPMarketType,
     pub price: f64,
     pub quantity: i64,
@@ -839,13 +837,13 @@ pub struct XTPOrderInfo {
     pub update_time: i64,
     pub cancel_time: i64,
     pub trade_amount: f64,
-    pub order_local_id: String,
+    pub order_local_id: &'a CStr,
     pub order_status: XTPOrderStatusType,
     pub order_submit_status: XTPOrderSubmitStatusType,
     pub order_type: TXTPOrderTypeType,
 }
 
-impl FromRaw<&sys::XTPOrderInfo> for XTPOrderInfo {
+impl<'a> FromRaw<&'a sys::XTPOrderInfo> for XTPOrderInfo<'a> {
     unsafe fn from_raw(r: &sys::XTPOrderInfo) -> XTPOrderInfo {
         let union = transmute::<_, &XTPOrderInfoUnion>(&r.__bindgen_anon_1);
 
@@ -854,7 +852,7 @@ impl FromRaw<&sys::XTPOrderInfo> for XTPOrderInfo {
             order_client_id: r.order_client_id,
             order_cancel_client_id: r.order_cancel_client_id,
             order_cancel_xtp_id: r.order_cancel_xtp_id,
-            ticker: carray_to_string(&r.ticker),
+            ticker: FromCBuf::from_c_buf(r.ticker.as_ref()),
             market: XTPMarketType::from_raw(r.market),
             price: r.price,
             quantity: r.quantity,
@@ -868,7 +866,7 @@ impl FromRaw<&sys::XTPOrderInfo> for XTPOrderInfo {
             update_time: r.update_time,
             cancel_time: r.cancel_time,
             trade_amount: r.trade_amount,
-            order_local_id: carray_to_string(&r.order_local_id),
+            order_local_id: FromCBuf::from_c_buf(r.order_local_id.as_ref()),
             order_status: XTPOrderStatusType::from_raw(r.order_status),
             order_submit_status: XTPOrderSubmitStatusType::from_raw(r.order_submit_status),
             order_type: r.order_type,
@@ -877,48 +875,48 @@ impl FromRaw<&sys::XTPOrderInfo> for XTPOrderInfo {
 }
 
 #[derive(Clone, Debug)]
-pub struct XTPTradeReport {
+pub struct XTPTradeReport<'a> {
     pub order_xtp_id: u64,
     pub order_client_id: u32,
-    pub ticker: String,
+    pub ticker: &'a CStr,
     pub market: XTPMarketType,
     pub local_order_id: u64,
-    pub exec_id: String,
+    pub exec_id: &'a CStr,
     pub price: f64,
     pub quantity: i64,
     pub trade_time: i64,
     pub trade_amount: f64,
     pub report_index: u64,
-    pub order_exch_id: String,
+    pub order_exch_id: &'a CStr,
     pub trade_type: TXTPTradeTypeType,
     pub side: XTPSideType,
     pub position_effect: XTPPositionEffectType,
     pub business_type: XTPBusinessType,
-    pub branch_pbu: String,
+    pub branch_pbu: &'a CStr,
 }
 
-impl FromRaw<&sys::XTPTradeReport> for XTPTradeReport {
+impl<'a> FromRaw<&'a sys::XTPTradeReport> for XTPTradeReport<'a> {
     unsafe fn from_raw(r: &sys::XTPTradeReport) -> XTPTradeReport {
         let union = transmute::<_, &XTPOrderInfoUnion>(&r.__bindgen_anon_1);
 
         XTPTradeReport {
             order_xtp_id: r.order_xtp_id,
             order_client_id: r.order_client_id,
-            ticker: carray_to_string(&r.ticker),
+            ticker: FromCBuf::from_c_buf(r.ticker.as_ref()),
             market: XTPMarketType::from_raw(r.market),
             local_order_id: r.local_order_id,
-            exec_id: carray_to_string(&r.exec_id),
+            exec_id: FromCBuf::from_c_buf(r.exec_id.as_ref()),
             price: r.price,
             quantity: r.quantity,
             trade_time: r.trade_time,
             trade_amount: r.trade_amount,
             report_index: r.report_index,
-            order_exch_id: carray_to_string(&r.order_exch_id),
+            order_exch_id: FromCBuf::from_c_buf(r.order_exch_id.as_ref()),
             trade_type: r.trade_type,
             side: XTPSideType::from_raw(union.side),
             position_effect: XTPPositionEffectType::from_raw(union.position_effect),
             business_type: XTPBusinessType::from_raw(r.business_type),
-            branch_pbu: carray_to_string(&r.branch_pbu),
+            branch_pbu: FromCBuf::from_c_buf(r.branch_pbu.as_ref()),
         }
     }
 }
@@ -939,9 +937,9 @@ impl FromRaw<&sys::XTPOrderCancelInfo> for XTPOrderCancelInfo {
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPQueryStkPositionRsp {
-    pub ticker: String,
-    pub ticker_name: String,
+pub struct XTPQueryStkPositionRsp<'a> {
+    pub ticker: &'a CStr,
+    pub ticker_name: &'a CStr,
     pub market: XTPMarketType,
     pub total_qty: i64,
     pub sellable_qty: i64,
@@ -958,11 +956,11 @@ pub struct XTPQueryStkPositionRsp {
     pub usable_locked_position: i64,
 }
 
-impl FromRaw<&sys::XTPQueryStkPositionRsp> for XTPQueryStkPositionRsp {
+impl<'a> FromRaw<&'a sys::XTPQueryStkPositionRsp> for XTPQueryStkPositionRsp<'a> {
     unsafe fn from_raw(r: &sys::XTPQueryStkPositionRsp) -> XTPQueryStkPositionRsp {
         XTPQueryStkPositionRsp {
-            ticker: carray_to_string(&r.ticker),
-            ticker_name: carray_to_string(&r.ticker_name),
+            ticker: FromCBuf::from_c_buf(r.ticker.as_ref()),
+            ticker_name: FromCBuf::from_c_buf(r.ticker_name.as_ref()),
             market: XTPMarketType::from_raw(r.market),
             total_qty: r.total_qty,
             sellable_qty: r.sellable_qty,
@@ -1037,12 +1035,12 @@ impl FromRaw<&sys::XTPQueryAssetRsp> for XTPQueryAssetRsp {
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPStructuredFundInfo {
+pub struct XTPStructuredFundInfo<'a> {
     pub exchange_id: XTPExchangeType,
-    pub sf_ticker: String,
-    pub sf_ticker_name: String,
-    pub ticker: String,
-    pub ticker_name: String,
+    pub sf_ticker: &'a CStr,
+    pub sf_ticker_name: &'a CStr,
+    pub ticker: &'a CStr,
+    pub ticker_name: &'a CStr,
     pub split_merge_status: XTPSplitMergeStatus,
     pub ratio: u32,
     pub min_split_qty: u32,
@@ -1050,14 +1048,14 @@ pub struct XTPStructuredFundInfo {
     pub net_price: f64,
 }
 
-impl FromRaw<&sys::XTPStructuredFundInfo> for XTPStructuredFundInfo {
+impl<'a> FromRaw<&'a sys::XTPStructuredFundInfo> for XTPStructuredFundInfo<'a> {
     unsafe fn from_raw(r: &sys::XTPStructuredFundInfo) -> XTPStructuredFundInfo {
         XTPStructuredFundInfo {
             exchange_id: XTPExchangeType::from_raw(r.exchange_id),
-            sf_ticker: carray_to_string(&r.sf_ticker),
-            sf_ticker_name: carray_to_string(&r.sf_ticker_name),
-            ticker: carray_to_string(&r.ticker),
-            ticker_name: carray_to_string(&r.ticker_name),
+            sf_ticker: FromCBuf::from_c_buf(r.sf_ticker.as_ref()),
+            sf_ticker_name: FromCBuf::from_c_buf(r.sf_ticker_name.as_ref()),
+            ticker: FromCBuf::from_c_buf(r.ticker.as_ref()),
+            ticker_name: FromCBuf::from_c_buf(r.ticker_name.as_ref()),
             split_merge_status: XTPSplitMergeStatus::from_raw(r.split_merge_status),
             ratio: r.ratio,
             min_split_qty: r.min_split_qty,
@@ -1076,7 +1074,7 @@ pub struct XTPFundTransferNotice {
     pub transfer_time: u64,
 }
 
-impl FromRaw<&sys::XTPFundTransferNotice> for XTPFundTransferNotice {
+impl<'a> FromRaw<&'a sys::XTPFundTransferNotice> for XTPFundTransferNotice {
     unsafe fn from_raw(r: &sys::XTPFundTransferNotice) -> XTPFundTransferNotice {
         XTPFundTransferNotice {
             serial_id: r.serial_id,
@@ -1089,10 +1087,10 @@ impl FromRaw<&sys::XTPFundTransferNotice> for XTPFundTransferNotice {
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPQueryETFBaseRsp {
+pub struct XTPQueryETFBaseRsp<'a> {
     pub market: XTPMarketType,
-    pub etf: String,
-    pub subscribe_redemption_ticker: String,
+    pub etf: &'a CStr,
+    pub subscribe_redemption_ticker: &'a CStr,
     pub unit: i32,
     pub subscribe_status: i32,
     pub redemption_status: i32,
@@ -1103,12 +1101,14 @@ pub struct XTPQueryETFBaseRsp {
     pub total_amount: f64,
 }
 
-impl FromRaw<&sys::XTPQueryETFBaseRsp> for XTPQueryETFBaseRsp {
+impl<'a> FromRaw<&'a sys::XTPQueryETFBaseRsp> for XTPQueryETFBaseRsp<'a> {
     unsafe fn from_raw(r: &sys::XTPQueryETFBaseRsp) -> XTPQueryETFBaseRsp {
         XTPQueryETFBaseRsp {
             market: XTPMarketType::from_raw(r.market),
-            etf: carray_to_string(&r.etf),
-            subscribe_redemption_ticker: carray_to_string(&r.subscribe_redemption_ticker),
+            etf: FromCBuf::from_c_buf(r.etf.as_ref()),
+            subscribe_redemption_ticker: FromCBuf::from_c_buf(
+                r.subscribe_redemption_ticker.as_ref(),
+            ),
             unit: r.unit,
             subscribe_status: r.subscribe_status,
             redemption_status: r.redemption_status,
@@ -1122,11 +1122,11 @@ impl FromRaw<&sys::XTPQueryETFBaseRsp> for XTPQueryETFBaseRsp {
 }
 
 #[derive(Clone)]
-pub struct XTPQueryETFComponentRsp {
+pub struct XTPQueryETFComponentRsp<'a> {
     pub market: XTPMarketType,
-    pub ticker: String,
-    pub component_ticker: String,
-    pub component_name: String,
+    pub ticker: &'a CStr,
+    pub component_ticker: &'a CStr,
+    pub component_name: &'a CStr,
     pub quantity: i64,
     pub component_market: XTPMarketType,
     pub replace_type: ETFReplaceType,
@@ -1134,13 +1134,13 @@ pub struct XTPQueryETFComponentRsp {
     pub amount: f64,
 }
 
-impl FromRaw<&sys::XTPQueryETFComponentRsp> for XTPQueryETFComponentRsp {
+impl<'a> FromRaw<&'a sys::XTPQueryETFComponentRsp> for XTPQueryETFComponentRsp<'a> {
     unsafe fn from_raw(r: &sys::XTPQueryETFComponentRsp) -> XTPQueryETFComponentRsp {
         XTPQueryETFComponentRsp {
             market: XTPMarketType::from_raw(r.market),
-            ticker: carray_to_string(&r.ticker),
-            component_ticker: carray_to_string(&r.component_ticker),
-            component_name: carray_to_string(&r.component_name),
+            ticker: FromCBuf::from_c_buf(r.ticker.as_ref()),
+            component_ticker: FromCBuf::from_c_buf(r.component_ticker.as_ref()),
+            component_name: FromCBuf::from_c_buf(r.component_name.as_ref()),
             quantity: r.quantity,
             component_market: XTPMarketType::from_raw(r.component_market),
             replace_type: ETFReplaceType::from_raw(r.replace_type),
@@ -1151,22 +1151,22 @@ impl FromRaw<&sys::XTPQueryETFComponentRsp> for XTPQueryETFComponentRsp {
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPQueryIPOTickerRsp {
+pub struct XTPQueryIPOTickerRsp<'a> {
     pub market: XTPMarketType,
-    pub ticker: String,
-    pub ticker_name: String,
+    pub ticker: &'a CStr,
+    pub ticker_name: &'a CStr,
     pub ticker_type: XTPTickerType,
     pub price: f64,
     pub unit: i32,
     pub qty_upper_limit: i32,
 }
 
-impl FromRaw<&sys::XTPQueryIPOTickerRsp> for XTPQueryIPOTickerRsp {
+impl<'a> FromRaw<&'a sys::XTPQueryIPOTickerRsp> for XTPQueryIPOTickerRsp<'a> {
     unsafe fn from_raw(r: &sys::XTPQueryIPOTickerRsp) -> XTPQueryIPOTickerRsp {
         XTPQueryIPOTickerRsp {
             market: XTPMarketType::from_raw(r.market),
-            ticker: carray_to_string(&r.ticker),
-            ticker_name: carray_to_string(&r.ticker_name),
+            ticker: FromCBuf::from_c_buf(r.ticker.as_ref()),
+            ticker_name: FromCBuf::from_c_buf(r.ticker_name.as_ref()),
             ticker_type: XTPTickerType::from_raw(r.ticker_type),
             price: r.price,
             unit: r.unit,
@@ -1183,7 +1183,7 @@ pub struct XTPQueryIPOQuotaRsp {
     pub unused: i32,
 }
 
-impl FromRaw<&sys::XTPQueryIPOQuotaRsp> for XTPQueryIPOQuotaRsp {
+impl<'a> FromRaw<&'a sys::XTPQueryIPOQuotaRsp> for XTPQueryIPOQuotaRsp {
     unsafe fn from_raw(r: &sys::XTPQueryIPOQuotaRsp) -> XTPQueryIPOQuotaRsp {
         XTPQueryIPOQuotaRsp {
             market: XTPMarketType::from_raw(r.market),
@@ -1195,12 +1195,12 @@ impl FromRaw<&sys::XTPQueryIPOQuotaRsp> for XTPQueryIPOQuotaRsp {
 }
 
 #[derive(Debug, Clone)]
-pub struct XTPQueryOptionAuctionInfoRsp {
-    pub ticker: String,
+pub struct XTPQueryOptionAuctionInfoRsp<'a> {
+    pub ticker: &'a CStr,
     pub security_id_source: XTPMarketType,
-    pub symbol: String,
-    pub contract_id: String,
-    pub underlying_security_id: String,
+    pub symbol: &'a CStr,
+    pub contract_id: &'a CStr,
+    pub underlying_security_id: &'a CStr,
     pub underlying_security_id_source: XTPMarketType,
     pub list_date: u32,
     pub last_trade_date: u32,
@@ -1234,14 +1234,14 @@ pub struct XTPQueryOptionAuctionInfoRsp {
     pub margin_ratio_param2: f64,
 }
 
-impl FromRaw<&sys::XTPQueryOptionAuctionInfoRsp> for XTPQueryOptionAuctionInfoRsp {
+impl<'a> FromRaw<&'a sys::XTPQueryOptionAuctionInfoRsp> for XTPQueryOptionAuctionInfoRsp<'a> {
     unsafe fn from_raw(r: &sys::XTPQueryOptionAuctionInfoRsp) -> XTPQueryOptionAuctionInfoRsp {
         XTPQueryOptionAuctionInfoRsp {
-            ticker: carray_to_string(&r.ticker),
+            ticker: FromCBuf::from_c_buf(r.ticker.as_ref()),
             security_id_source: XTPMarketType::from_raw(r.security_id_source),
-            symbol: carray_to_string(&r.symbol),
-            contract_id: carray_to_string(&r.contract_id),
-            underlying_security_id: carray_to_string(&r.underlying_security_id),
+            symbol: FromCBuf::from_c_buf(r.symbol.as_ref()),
+            contract_id: FromCBuf::from_c_buf(r.contract_id.as_ref()),
+            underlying_security_id: FromCBuf::from_c_buf(r.underlying_security_id.as_ref()),
             underlying_security_id_source: XTPMarketType::from_raw(r.underlying_security_id_source),
             list_date: r.list_date,
             last_trade_date: r.last_trade_date,
@@ -1277,28 +1277,44 @@ impl FromRaw<&sys::XTPQueryOptionAuctionInfoRsp> for XTPQueryOptionAuctionInfoRs
     }
 }
 
-pub(crate) fn carray_to_string(ptr: &[i8]) -> String {
-    let string = unsafe { CStr::from_ptr(ptr as *const [i8] as *const i8) };
-    let string = string.to_owned().to_string_lossy().to_string();
-    string
+trait FromCBuf<'a> {
+    fn from_c_buf(b: &'a [c_char]) -> Self;
 }
 
-pub(crate) fn string_to_carray16(s: &str) -> [i8; 16] {
-    let mut sarr = [0i8; 16];
+impl<'a> FromCBuf<'a> for &'a CStr {
+    fn from_c_buf(b: &'a [c_char]) -> Self {
+        // convert from &[i8] to &[u8]
+        let b = unsafe { &*(b as *const _ as *const [u8]) };
 
-    for (i, &byte) in s.as_bytes()[..16].into_iter().enumerate() {
-        sarr[i] = byte as i8;
+        match b.iter().position(|&c| c == 0u8) {
+            Some(pos) => unsafe { CStr::from_bytes_with_nul_unchecked(&b[..pos + 1]) },
+            None => unreachable!("String without null end"), // TODO: not sure if XTP follows this
+        }
     }
-
-    sarr
 }
 
-pub(crate) fn string_to_carray64(s: &str) -> [i8; 64] {
-    let mut sarr = [0i8; 64];
+trait ToCBuf {
+    fn to_c_buf16(&self) -> [c_char; 16usize];
+    fn to_c_buf64(&self) -> [c_char; 64usize];
+}
 
-    for (i, &byte) in s.as_bytes()[..64].into_iter().enumerate() {
-        sarr[i] = byte as i8;
+impl ToCBuf for &CStr {
+    fn to_c_buf16(&self) -> [c_char; 16usize] {
+        let mut sarr = [0i8; 16];
+
+        for (i, &byte) in self.to_bytes()[..16].into_iter().enumerate() {
+            sarr[i] = byte as i8;
+        }
+
+        sarr
     }
+    fn to_c_buf64(&self) -> [c_char; 64usize] {
+        let mut sarr = [0i8; 64];
 
-    sarr
+        for (i, &byte) in self.to_bytes()[..64].into_iter().enumerate() {
+            sarr[i] = byte as i8;
+        }
+
+        sarr
+    }
 }

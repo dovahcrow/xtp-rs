@@ -4,14 +4,14 @@ use crate::types::FromRaw;
 use libc::{c_int, c_void};
 use std::slice::from_raw_parts;
 
-type RXTPRI = types::XTPRspInfoStruct;
+type RXTPRI<'a> = types::XTPRspInfoStruct<'a>;
 type RXTPET = types::XTPExchangeType;
-type RXTPST = types::XTPSpecificTickerStruct;
-type RXTPOB = types::OrderBookStruct;
-type RXTPTBT = types::XTPTickByTickStruct;
-type RXTPQSI = types::XTPQuoteStaticInfo;
-type RXTPTPI = types::XTPTickerPriceInfo;
-type RXTPMD = types::XTPMarketDataStruct;
+type RXTPST<'a> = types::XTPSpecificTickerStruct<'a>;
+type RXTPOB<'a> = types::OrderBookStruct<'a>;
+type RXTPTBT<'a> = types::XTPTickByTickStruct<'a>;
+type RXTPQSI<'a> = types::XTPQuoteStaticInfo<'a>;
+type RXTPTPI<'a> = types::XTPTickerPriceInfo<'a>;
+type RXTPMD<'a> = types::XTPMarketDataStruct<'a>;
 
 #[allow(unused_variables)]
 pub trait QuoteSpi {
