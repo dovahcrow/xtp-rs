@@ -49,7 +49,7 @@ impl QuoteApi {
             let underlying_error = self.get_api_last_error();
             Err(XTPError::XTPClientError {
                 error_id: underlying_error.error_id as i64,
-                error_msg: underlying_error.error_msg.to_string_lossy().to_string(),
+                error_msg: underlying_error.error_msg,
             })?;
         }
         Ok(())

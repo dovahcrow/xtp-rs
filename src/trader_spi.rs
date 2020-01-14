@@ -8,7 +8,7 @@ use crate::types;
 use crate::types::FromRaw;
 use libc::{c_int, c_void};
 
-type RXTPRI<'a> = types::XTPRspInfoStruct<'a>;
+type RXTPRI<'a> = types::XTPRspInfoStruct;
 
 #[allow(unused_variables)]
 pub trait TraderSpi {

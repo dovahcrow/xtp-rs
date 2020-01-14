@@ -11,8 +11,8 @@ use xtp::{
     XTPProtocolType, XTPRspInfoStruct, XTPSpecificTickerStruct, XTPTickByTickStruct,
 };
 
-type XTPST<'a> = XTPSpecificTickerStruct<'a>;
-type XTPRI<'a> = XTPRspInfoStruct<'a>;
+type XTPST = XTPSpecificTickerStruct;
+type XTPRI = XTPRspInfoStruct;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "example", about = "An example of xtp-rs usage.")]
@@ -51,9 +51,23 @@ fn main() -> Fallible<()> {
         &args.password,
         XTPProtocolType::TCP,
     )?;
+    let codes_sh = [
+        "600036", "600000", "600001", "600018", "600009", "510050", "688300", "688310", "688100",
+        "603777", "600570", "600030", "600019", "601519", "399905", "603050", "600001", "600002",
+        "600004", "600010", "600871", "600861", "600855", "600816", "600817", "600818", "600819",
+        "600820", "600821", "600822", "600823", "600824", "600825", "600826", "600827", "600710",
+        "600711", "600712", "600713", "600714", "600715", "600716", "600717", "600718", "600719",
+        "600720", "6007211",
+    ];
+    let codes_sz = [
+        "000001", "000002", "000006", "000007", "000008", "300339", "300380", "000977", "300001",
+        "000016", "300180",
+    ];
 
-    api.subscribe_market_data(&["600120", "600090"], XTPExchangeType::SH)?;
-    api.subscribe_order_book(&["600018"], XTPExchangeType::SH)?;
+    api.subscribe_market_data(&codes_sh, XTPExchangeType::SH)
+        .unwrap();
+    api.subscribe_market_data(&codes_sz, XTPExchangeType::SZ)
+        .unwrap();
     api.subscribe_tick_by_tick(&["600018", "600021"], XTPExchangeType::SH)?;
 
     sleep(Duration::from_secs(10));
