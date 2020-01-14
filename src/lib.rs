@@ -1,8 +1,7 @@
 mod errors;
 mod quote_api;
 mod quote_spi;
-#[doc(hidden)]
-pub mod sys;
+mod sys;
 mod trader_api;
 mod trader_spi;
 mod types;
@@ -10,8 +9,6 @@ mod types;
 pub use errors::XTPError;
 pub use quote_api::QuoteApi;
 pub use quote_spi::QuoteSpi;
-#[doc(hidden)]
-#[no_mangle]
 pub use quote_spi::{
     QuoteSpiStub_Rust_Destructor, QuoteSpiStub_Rust_OnDisconnected, QuoteSpiStub_Rust_OnError,
     QuoteSpiStub_Rust_OnSubMarketData, QuoteSpiStub_Rust_OnSubscribeAllOptionTickByTick,
