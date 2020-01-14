@@ -24,13 +24,17 @@ pub use sys::{TXTPOrderTypeType, TXTPTradeTypeType};
 pub use trader_api::TraderApi;
 pub use trader_spi::TraderSpi;
 pub use types::{
-    OrderBookStruct, XTPAccountType, XTPBusinessType, XTPExchangeType, XTPFundOperStatus,
-    XTPFundTransferNotice, XTPFundTransferType, XTPLogLevel, XTPMarketDataStruct, XTPMarketType,
-    XTPMarketdataType, XTPOptCallOrPutType, XTPOptExerciseTypeType, XTPOrderActionStatusType,
-    XTPOrderCancelInfo, XTPOrderInfo, XTPOrderStatusType, XTPOrderSubmitStatusType,
-    XTPPositionDirectionType, XTPPositionEffectType, XTPPriceType, XTPProtocolType,
-    XTPQueryAssetRsp, XTPQueryETFBaseRsp, XTPQueryETFComponentRsp, XTPQueryIPOQuotaRsp,
-    XTPQueryIPOTickerRsp, XTPQueryOptionAuctionInfoRsp, XTPQueryStkPositionRsp, XTPRspInfoStruct,
-    XTPSideType, XTPSpecificTickerStruct, XTPSplitMergeStatus, XTPStructuredFundInfo, XTPTbtType,
-    XTPTeResumeType, XTPTickByTickStruct, XTPTickerType, XTPTradeReport,
+    ETFReplaceType, OrderBookStruct, XTPAccountType, XTPBusinessType, XTPExchangeType,
+    XTPFundOperStatus, XTPFundTransferNotice, XTPFundTransferReq, XTPFundTransferType, XTPLogLevel,
+    XTPMarketDataStruct, XTPMarketType, XTPMarketdataType, XTPOptCallOrPutType,
+    XTPOptExerciseTypeType, XTPOrderActionStatusType, XTPOrderCancelInfo, XTPOrderInfo,
+    XTPOrderInsertInfo, XTPOrderStatusType, XTPOrderSubmitStatusType, XTPPositionDirectionType,
+    XTPPositionEffectType, XTPPriceType, XTPProtocolType, XTPQueryAssetRsp, XTPQueryETFBaseReq,
+    XTPQueryETFBaseRsp, XTPQueryETFComponentReq, XTPQueryETFComponentRsp,
+    XTPQueryFundTransferLogReq, XTPQueryIPOQuotaRsp, XTPQueryIPOTickerRsp,
+    XTPQueryOptionAuctionInfoReq, XTPQueryOptionAuctionInfoRsp, XTPQueryOrderByPageReq,
+    XTPQueryOrderReq, XTPQueryStkPositionRsp, XTPQueryStructuredFundInfoReq,
+    XTPQueryTraderByPageReq, XTPQueryTraderReq, XTPQuoteStaticInfo, XTPRspInfoStruct, XTPSideType,
+    XTPSpecificTickerStruct, XTPSplitMergeStatus, XTPStructuredFundInfo, XTPTbtType,
+    XTPTeResumeType, XTPTickByTickStruct, XTPTickerPriceInfo, XTPTickerType, XTPTradeReport,
 };
