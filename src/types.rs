@@ -1331,7 +1331,7 @@ impl<'a> FromCBuf<'a> for String {
         // convert from &[i8] to &[u8]
         let b = unsafe { &*(b as *const _ as *const [u8]) };
         let slice = match b.iter().position(|&c| c == 0u8) {
-            Some(pos) => &b[..=pos],
+            Some(pos) => &b[..pos],
             None => b,
         };
         unsafe { String::from_utf8_unchecked(slice.to_vec()) }
