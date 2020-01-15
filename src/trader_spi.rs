@@ -33,6 +33,7 @@ pub trait TraderSpi {
         session_id: u64,
     ) {
     }
+    #[allow(clippy::too_many_arguments)]
     fn on_query_order_by_page(
         &self,
         order_info: types::XTPOrderInfo,
@@ -53,6 +54,7 @@ pub trait TraderSpi {
         session_id: u64,
     ) {
     }
+    #[allow(clippy::too_many_arguments)]
     fn on_query_trade_by_page(
         &self,
         trade_info: types::XTPTradeReport,

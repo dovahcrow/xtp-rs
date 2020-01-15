@@ -446,7 +446,7 @@ impl<'a> FromRaw<&'a XTPRI> for XTPRspInfoStruct {
         let error_msg = FromCBuf::from_c_buf(error_msg.as_ref());
         XTPRspInfoStruct {
             error_id: *error_id,
-            error_msg: error_msg,
+            error_msg,
         }
     }
 }
@@ -873,7 +873,8 @@ pub struct XTPOrderInfo {
 
 impl<'a> FromRaw<&'a sys::XTPOrderInfo> for XTPOrderInfo {
     unsafe fn from_raw(r: &sys::XTPOrderInfo) -> XTPOrderInfo {
-        let union = transmute::<_, &XTPOrderInfoUnion>(&r.__bindgen_anon_1);
+        let union = &*(&r.__bindgen_anon_1 as *const sys::XTPOrderInfo__bindgen_ty_1
+            as *const XTPOrderInfoUnion);
 
         XTPOrderInfo {
             order_xtp_id: r.order_xtp_id,
@@ -925,7 +926,8 @@ pub struct XTPTradeReport {
 
 impl<'a> FromRaw<&'a sys::XTPTradeReport> for XTPTradeReport {
     unsafe fn from_raw(r: &sys::XTPTradeReport) -> XTPTradeReport {
-        let union = transmute::<_, &XTPOrderInfoUnion>(&r.__bindgen_anon_1);
+        let union = &*(&r.__bindgen_anon_1 as *const sys::XTPTradeReport__bindgen_ty_1
+            as *const XTPOrderInfoUnion);
 
         XTPTradeReport {
             order_xtp_id: r.order_xtp_id,
@@ -1314,7 +1316,7 @@ impl<'a> FromCBuf<'a> for &'a CStr {
         // convert from &[i8] to &[u8]
         let b = unsafe { &*(b as *const _ as *const [u8]) };
         match b.iter().position(|&c| c == 0u8) {
-            Some(pos) => unsafe { CStr::from_bytes_with_nul_unchecked(&b[..pos + 1]) },
+            Some(pos) => unsafe { CStr::from_bytes_with_nul_unchecked(&b[..=pos]) },
             None => {
                 let s = String::from_utf8(b.to_vec());
                 println!("{:?}", s);
@@ -1329,7 +1331,7 @@ impl<'a> FromCBuf<'a> for String {
         // convert from &[i8] to &[u8]
         let b = unsafe { &*(b as *const _ as *const [u8]) };
         let slice = match b.iter().position(|&c| c == 0u8) {
-            Some(pos) => &b[..pos + 1],
+            Some(pos) => &b[..=pos],
             None => b,
         };
         unsafe { String::from_utf8_unchecked(slice.to_vec()) }
@@ -1345,7 +1347,7 @@ impl ToCBuf for &CStr {
     fn to_c_buf16(&self) -> [c_char; 16usize] {
         let mut sarr = [0i8; 16];
 
-        for (i, &byte) in self.to_bytes()[..16].into_iter().enumerate() {
+        for (i, &byte) in self.to_bytes()[..16].iter().enumerate() {
             sarr[i] = byte as i8;
         }
 
@@ -1354,7 +1356,7 @@ impl ToCBuf for &CStr {
     fn to_c_buf64(&self) -> [c_char; 64usize] {
         let mut sarr = [0i8; 64];
 
-        for (i, &byte) in self.to_bytes()[..64].into_iter().enumerate() {
+        for (i, &byte) in self.to_bytes()[..64].iter().enumerate() {
             sarr[i] = byte as i8;
         }
 
@@ -1366,7 +1368,7 @@ impl ToCBuf for String {
     fn to_c_buf16(&self) -> [c_char; 16usize] {
         let mut sarr = [0i8; 16];
 
-        for (i, &byte) in self.as_bytes()[..16].into_iter().enumerate() {
+        for (i, &byte) in self.as_bytes()[..16].iter().enumerate() {
             sarr[i] = byte as i8;
         }
 
@@ -1375,7 +1377,7 @@ impl ToCBuf for String {
     fn to_c_buf64(&self) -> [c_char; 64usize] {
         let mut sarr = [0i8; 64];
 
-        for (i, &byte) in self.as_bytes()[..64].into_iter().enumerate() {
+        for (i, &byte) in self.as_bytes()[..64].iter().enumerate() {
             sarr[i] = byte as i8;
         }
 

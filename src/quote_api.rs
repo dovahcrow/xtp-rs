@@ -47,10 +47,11 @@ impl QuoteApi {
     fn translate_code(&mut self, code: i32) -> Fallible<()> {
         if code != 0 {
             let underlying_error = self.get_api_last_error();
-            Err(XTPError::XTPClientError {
+            return Err(XTPError::XTPClientError {
                 error_id: underlying_error.error_id as i64,
                 error_msg: underlying_error.error_msg,
-            })?;
+            }
+            .into());
         }
         Ok(())
     }
@@ -67,7 +68,7 @@ impl QuoteApi {
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
         let mut cstring_tickers: Vec<_> = tickers
-            .into_iter()
+            .iter()
             .map(|ticker| CString::new(*ticker).unwrap().into_raw())
             .collect();
 

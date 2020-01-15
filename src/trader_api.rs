@@ -52,7 +52,8 @@ impl TraderApi {
         Err(XTPError::XTPClientError {
             error_id: underlying_error.error_id as i64,
             error_msg: underlying_error.error_msg,
-        })?
+        }
+        .into())
     }
 }
 
@@ -315,14 +316,14 @@ impl TraderApi {
 
     pub fn query_fund_transfer(
         &mut self,
-        query_param: &types::XTPQueryFundTransferLogReq,
+        query_param: types::XTPQueryFundTransferLogReq,
         session_id: u64,
         request_id: i32,
     ) -> Fallible<i64> {
         let retc = unsafe {
             TraderApi_QueryFundTransfer(
                 self.trader_api,
-                &mut query_param.into() as *mut _,
+                &mut (&query_param).into() as *mut _,
                 session_id,
                 request_id,
             )
