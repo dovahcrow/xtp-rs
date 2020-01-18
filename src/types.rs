@@ -1346,8 +1346,9 @@ trait ToCBuf {
 impl ToCBuf for &CStr {
     fn to_c_buf16(&self) -> [c_char; 16usize] {
         let mut sarr = [0i8; 16];
+        let len = self.to_bytes().len().min(16);
 
-        for (i, &byte) in self.to_bytes()[..16].iter().enumerate() {
+        for (i, &byte) in self.to_bytes()[..len].iter().enumerate() {
             sarr[i] = byte as i8;
         }
 
@@ -1355,8 +1356,9 @@ impl ToCBuf for &CStr {
     }
     fn to_c_buf64(&self) -> [c_char; 64usize] {
         let mut sarr = [0i8; 64];
+        let len = self.to_bytes().len().min(64);
 
-        for (i, &byte) in self.to_bytes()[..64].iter().enumerate() {
+        for (i, &byte) in self.to_bytes()[..len].iter().enumerate() {
             sarr[i] = byte as i8;
         }
 
@@ -1367,8 +1369,9 @@ impl ToCBuf for &CStr {
 impl ToCBuf for String {
     fn to_c_buf16(&self) -> [c_char; 16usize] {
         let mut sarr = [0i8; 16];
+        let len = self.as_bytes().len().min(16);
 
-        for (i, &byte) in self.as_bytes()[..16].iter().enumerate() {
+        for (i, &byte) in self.as_bytes()[..len].iter().enumerate() {
             sarr[i] = byte as i8;
         }
 
@@ -1376,8 +1379,9 @@ impl ToCBuf for String {
     }
     fn to_c_buf64(&self) -> [c_char; 64usize] {
         let mut sarr = [0i8; 64];
+        let len = self.as_bytes().len().min(64);
 
-        for (i, &byte) in self.as_bytes()[..64].iter().enumerate() {
+        for (i, &byte) in self.as_bytes()[..len].iter().enumerate() {
             sarr[i] = byte as i8;
         }
 
