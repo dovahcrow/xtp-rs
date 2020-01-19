@@ -173,60 +173,95 @@ pub enum XTPSideType {
 }
 impl_ffi_convert!(XTPSideType, XTP_SIDE_TYPE, 1, 30);
 
+/// XTP_POSITION_EFFECT_TYPE是开平标识类型
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPPositionEffectType {
+    /// 初始值或未知值开平标识，现货适用
     Init = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_INIT as u8,
+    /// 开
     Open = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_OPEN as u8,
+    /// 平
     Close = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CLOSE as u8,
+    /// 强平
     ForceClose = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_FORCECLOSE as u8,
+    /// 平今
     CloseToday = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CLOSETODAY as u8,
+    /// 平昨
     CloseYesterday = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CLOSEYESTERDAY as u8,
+    /// 强减
     ForceOff = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_FORCEOFF as u8,
+    /// 本地强平
     LocalForceClose = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_LOCALFORCECLOSE as u8,
+    /// 信用业务追保强平
     CreditForceCover = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CREDIT_FORCE_COVER as u8,
+    /// 信用业务清偿强平
     CreditForceClear = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CREDIT_FORCE_CLEAR as u8,
+    /// 信用业务合约到期强平
     CreditForceDebt = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CREDIT_FORCE_DEBT as u8,
+    /// 信用业务无条件强平
     CreditForceUncond = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_CREDIT_FORCE_UNCOND as u8,
+    /// 未知的开平标识类型
     Unknown = XTP_POSITION_EFFECT_TYPE::XTP_POSITION_EFFECT_UNKNOWN as u8,
 }
 impl_ffi_convert!(XTPPositionEffectType, XTP_POSITION_EFFECT_TYPE, 1, 12);
 
+/// XTP_ORDER_ACTION_STATUS_TYPE是报单操作状态类型
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPOrderActionStatusType {
+    /// 已经提交
     Submitted = XTP_ORDER_ACTION_STATUS_TYPE::XTP_ORDER_ACTION_STATUS_SUBMITTED as u32,
+    /// 已经接受
     Accepted = XTP_ORDER_ACTION_STATUS_TYPE::XTP_ORDER_ACTION_STATUS_ACCEPTED as u32,
+    /// 已经被拒绝
     Rejected = XTP_ORDER_ACTION_STATUS_TYPE::XTP_ORDER_ACTION_STATUS_REJECTED as u32,
 }
 impl_ffi_convert!(XTPOrderActionStatusType, XTP_ORDER_ACTION_STATUS_TYPE, 1, 3);
 
+/// XTP_ORDER_STATUS_TYPE是报单状态类型
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPOrderStatusType {
+    /// 初始化
     Init = XTP_ORDER_STATUS_TYPE::XTP_ORDER_STATUS_INIT as u32,
+    /// 全部成交
     AllTraded = XTP_ORDER_STATUS_TYPE::XTP_ORDER_STATUS_ALLTRADED as u32,
+    /// 部分成交
     PartTradedQueueing = XTP_ORDER_STATUS_TYPE::XTP_ORDER_STATUS_PARTTRADEDQUEUEING as u32,
+    /// 部分撤单
     PartTradedNotQueueing = XTP_ORDER_STATUS_TYPE::XTP_ORDER_STATUS_PARTTRADEDNOTQUEUEING as u32,
+    /// 未成交
     NoTradeQueueing = XTP_ORDER_STATUS_TYPE::XTP_ORDER_STATUS_NOTRADEQUEUEING as u32,
+    /// 已撤单
     Canceled = XTP_ORDER_STATUS_TYPE::XTP_ORDER_STATUS_CANCELED as u32,
+    /// 已拒绝
     Rejected = XTP_ORDER_STATUS_TYPE::XTP_ORDER_STATUS_REJECTED as u32,
+    /// 未知订单状态
     Unknown = XTP_ORDER_STATUS_TYPE::XTP_ORDER_STATUS_UNKNOWN as u32,
 }
 impl_ffi_convert!(XTPOrderStatusType, XTP_ORDER_STATUS_TYPE, 7);
 
+/// XTP_ORDER_SUBMIT_STATUS_TYPE是报单提交状态类型
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPOrderSubmitStatusType {
+    /// 订单已经提交
     InsertSubmitted = XTP_ORDER_SUBMIT_STATUS_TYPE::XTP_ORDER_SUBMIT_STATUS_INSERT_SUBMITTED as u32,
+    /// 订单已经被接受
     InsertAccepted = XTP_ORDER_SUBMIT_STATUS_TYPE::XTP_ORDER_SUBMIT_STATUS_INSERT_ACCEPTED as u32,
+    /// 订单已经被拒绝
     InsertRejected = XTP_ORDER_SUBMIT_STATUS_TYPE::XTP_ORDER_SUBMIT_STATUS_INSERT_REJECTED as u32,
+    /// 撤单已经提交
     CancelSubmitted = XTP_ORDER_SUBMIT_STATUS_TYPE::XTP_ORDER_SUBMIT_STATUS_CANCEL_SUBMITTED as u32,
+    /// 撤单已经被拒绝
     CancelRejected = XTP_ORDER_SUBMIT_STATUS_TYPE::XTP_ORDER_SUBMIT_STATUS_CANCEL_REJECTED as u32,
+    /// 撤单已经被接受
     CancelAccepted = XTP_ORDER_SUBMIT_STATUS_TYPE::XTP_ORDER_SUBMIT_STATUS_CANCEL_ACCEPTED as u32,
 }
 impl_ffi_convert!(XTPOrderSubmitStatusType, XTP_ORDER_SUBMIT_STATUS_TYPE, 1, 6);
 
+/// XTP_TE_RESUME_TYPE是公有流（订单响应、成交回报）重传方式
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum XTPTeResumeType {
