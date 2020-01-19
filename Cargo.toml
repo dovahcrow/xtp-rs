@@ -1,6 +1,6 @@
 [package]
 name = "xtp"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 authors = ["Weiyuan Wu <doomsplayer@gmail.com>"]
 edition = "2018"
 license = "MIT"
