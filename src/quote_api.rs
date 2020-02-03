@@ -249,7 +249,10 @@ impl QuoteApi {
                 sock_type.into(),
             )
         };
-        self.translate_code(ret_code)
+        match ret_code {
+            -2 => Err(XTPError::DuplicatedLogin.into()),
+            _ => self.translate_code(ret_code),
+        }
     }
 
     pub fn logout(&mut self) -> Fallible<()> {
