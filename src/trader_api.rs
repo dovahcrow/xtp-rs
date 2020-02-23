@@ -21,9 +21,12 @@ use std::ffi::{CStr, CString};
 use std::mem::transmute;
 use std::net::SocketAddrV4;
 
+unsafe impl Send for TraderApi {}
+unsafe impl Sync for TraderApi {}
+
 pub struct TraderApi {
     trader_api: *mut XTP_API_TraderApi,
-    trader_spi_stub: Option<*mut TraderSpiStub>, // Free the stub after we freed XTP_API_QuoteApi in drop()
+    trader_spi_stub: Option<*mut TraderSpiStub>, // Free the stub after we freed XTP_API_TraderApi in drop()
 }
 
 impl TraderApi {

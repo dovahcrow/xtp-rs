@@ -23,6 +23,9 @@ use std::ffi::{CStr, CString};
 use std::mem::transmute;
 use std::net::SocketAddrV4;
 
+unsafe impl Send for QuoteApi {}
+unsafe impl Sync for QuoteApi {}
+
 pub struct QuoteApi {
     quote_api: *mut XTP_API_QuoteApi,
     quote_spi_stub: Option<*mut QuoteSpiStub>, // Free the stub after we freed XTP_API_QuoteApi in drop()
