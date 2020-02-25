@@ -1,3 +1,5 @@
+/// QuoteApi is thread safe with internal synchronization mechanisms.
+/// As a result we can use &self instead of &mut self on most of the methods.
 use crate::errors::XTPError;
 use crate::quote_spi::QuoteSpi;
 use crate::sys::{
@@ -47,7 +49,7 @@ impl QuoteApi {
             quote_spi_stub: None,
         }
     }
-    fn translate_code(&mut self, code: i32) -> Fallible<()> {
+    fn translate_code(&self, code: i32) -> Fallible<()> {
         if code != 0 {
             let underlying_error = self.get_api_last_error();
             return Err(XTPError::XTPClientError {
@@ -60,7 +62,7 @@ impl QuoteApi {
     }
 
     fn call_by_tickers(
-        &mut self,
+        &self,
         func: unsafe extern "C" fn(
             self_: *mut XTP_API_QuoteApi,
             ticker: *mut *mut c_char,
@@ -91,7 +93,7 @@ impl QuoteApi {
     }
 
     fn call_by_exchange(
-        &mut self,
+        &self,
         func: unsafe extern "C" fn(
             self_: *mut XTP_API_QuoteApi,
             exchange_id: XTP_EXCHANGE_TYPE,
@@ -104,25 +106,27 @@ impl QuoteApi {
 }
 
 impl QuoteApi {
-    fn release(&mut self) {
+    /// Do not call this function by yourself!
+    /// When QuoteApi is dropped, `release` will be automatically called.
+    fn release(&self) {
         unsafe { QuoteApi_Release(self.quote_api) };
     }
 
-    pub fn get_trading_day(&mut self) -> &str {
+    pub fn get_trading_day(&self) -> &str {
         let ptr = unsafe { QuoteApi_GetTradingDay(self.quote_api) }; // The string is freed by them
         unsafe { CStr::from_ptr(ptr) }.to_str().unwrap()
     }
 
-    pub fn get_api_version(&mut self) -> &CStr {
+    pub fn get_api_version(&self) -> &CStr {
         let ptr = unsafe { QuoteApi_GetApiVersion(self.quote_api) }; // The string is freed by them
         unsafe { CStr::from_ptr(ptr) }
     }
 
-    pub fn get_api_last_error(&mut self) -> types::XTPRspInfoStruct {
+    pub fn get_api_last_error(&self) -> types::XTPRspInfoStruct {
         unsafe { types::XTPRspInfoStruct::from_raw(&*QuoteApi_GetApiLastError(self.quote_api)) }
     }
 
-    pub fn set_udp_buffer_size(&mut self, buffer_size: u32) {
+    pub fn set_udp_buffer_size(&self, buffer_size: u32) {
         unsafe { QuoteApi_SetUDPBufferSize(self.quote_api, buffer_size) }
     }
 
@@ -138,12 +142,12 @@ impl QuoteApi {
         unsafe { QuoteApi_RegisterSpi(self.quote_api, ptr as *mut XTP_API_QuoteSpi) };
     }
 
-    pub fn set_heart_beat_interval(&mut self, interval: u32) {
+    pub fn set_heart_beat_interval(&self, interval: u32) {
         unsafe { QuoteApi_SetHeartBeatInterval(self.quote_api, interval) }
     }
 
     pub fn subscribe_market_data(
-        &mut self,
+        &self,
         tickers: &[&str],
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
@@ -151,7 +155,7 @@ impl QuoteApi {
     }
 
     pub fn unsubscribe_market_data(
-        &mut self,
+        &self,
         tickers: &[&str],
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
@@ -159,7 +163,7 @@ impl QuoteApi {
     }
 
     pub fn subscribe_order_book(
-        &mut self,
+        &self,
         tickers: &[&str],
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
@@ -167,7 +171,7 @@ impl QuoteApi {
     }
 
     pub fn unsubscribe_order_book(
-        &mut self,
+        &self,
         tickers: &[&str],
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
@@ -175,7 +179,7 @@ impl QuoteApi {
     }
 
     pub fn subscribe_tick_by_tick(
-        &mut self,
+        &self,
         tickers: &[&str],
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
@@ -183,57 +187,42 @@ impl QuoteApi {
     }
 
     pub fn unsubscribe_tick_by_tick(
-        &mut self,
+        &self,
         tickers: &[&str],
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
         self.call_by_tickers(QuoteApi_UnSubscribeTickByTick, tickers, exchange_id)
     }
 
-    pub fn subscribe_all_market_data(
-        &mut self,
-        exchange_id: types::XTPExchangeType,
-    ) -> Fallible<()> {
+    pub fn subscribe_all_market_data(&self, exchange_id: types::XTPExchangeType) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_SubscribeAllMarketData, exchange_id)
     }
 
-    pub fn unsubscribe_all_market_data(
-        &mut self,
-        exchange_id: types::XTPExchangeType,
-    ) -> Fallible<()> {
+    pub fn unsubscribe_all_market_data(&self, exchange_id: types::XTPExchangeType) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_UnSubscribeAllMarketData, exchange_id)
     }
 
-    pub fn subscribe_all_order_book(
-        &mut self,
-        exchange_id: types::XTPExchangeType,
-    ) -> Fallible<()> {
+    pub fn subscribe_all_order_book(&self, exchange_id: types::XTPExchangeType) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_SubscribeAllOrderBook, exchange_id)
     }
 
-    pub fn unsubscribe_all_order_book(
-        &mut self,
-        exchange_id: types::XTPExchangeType,
-    ) -> Fallible<()> {
+    pub fn unsubscribe_all_order_book(&self, exchange_id: types::XTPExchangeType) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_UnSubscribeAllOrderBook, exchange_id)
     }
 
-    pub fn subscribe_all_tick_by_tick(
-        &mut self,
-        exchange_id: types::XTPExchangeType,
-    ) -> Fallible<()> {
+    pub fn subscribe_all_tick_by_tick(&self, exchange_id: types::XTPExchangeType) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_SubscribeAllTickByTick, exchange_id)
     }
 
     pub fn unsubscribe_all_tick_by_tick(
-        &mut self,
+        &self,
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_UnSubscribeAllTickByTick, exchange_id)
     }
 
     pub fn login(
-        &mut self,
+        &self,
         server_addr: SocketAddrV4,
         username: &str,
         password: &str,
@@ -258,65 +247,65 @@ impl QuoteApi {
         }
     }
 
-    pub fn logout(&mut self) -> Fallible<()> {
+    pub fn logout(&self) -> Fallible<()> {
         let ret_code = unsafe { QuoteApi_Logout(self.quote_api) };
         self.translate_code(ret_code)
     }
 
-    pub fn query_all_tickers(&mut self, exchange_id: types::XTPExchangeType) -> Fallible<()> {
+    pub fn query_all_tickers(&self, exchange_id: types::XTPExchangeType) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_QueryAllTickers, exchange_id)
     }
 
     pub fn query_tickers_price_info(
-        &mut self,
+        &self,
         tickers: &[&str],
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
         self.call_by_tickers(QuoteApi_QueryTickersPriceInfo, tickers, exchange_id)
     }
 
-    pub fn query_all_tickers_price_info(&mut self) -> Fallible<()> {
+    pub fn query_all_tickers_price_info(&self) -> Fallible<()> {
         let code = unsafe { QuoteApi_QueryAllTickersPriceInfo(self.quote_api) };
         self.translate_code(code)
     }
 
     pub fn subscribe_all_option_market_data(
-        &mut self,
+        &self,
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_SubscribeAllOptionMarketData, exchange_id)
     }
 
     pub fn unsubscribe_all_option_market_data(
-        &mut self,
+        &self,
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_UnSubscribeAllOptionMarketData, exchange_id)
     }
 
     pub fn subscribe_all_option_order_book(
-        &mut self,
+        &self,
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_SubscribeAllOptionOrderBook, exchange_id)
     }
 
     pub fn unsubscribe_all_option_order_book(
-        &mut self,
+        &self,
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_UnSubscribeAllOptionOrderBook, exchange_id)
     }
 
     pub fn subscribe_all_option_tick_by_tick(
-        &mut self,
+        &self,
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_SubscribeAllOptionTickByTick, exchange_id)
     }
 
     pub fn unsubscribe_all_option_tick_by_tick(
-        &mut self,
+        &self,
         exchange_id: types::XTPExchangeType,
     ) -> Fallible<()> {
         self.call_by_exchange(QuoteApi_UnSubscribeAllOptionTickByTick, exchange_id)

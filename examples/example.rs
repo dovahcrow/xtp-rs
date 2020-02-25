@@ -3,7 +3,9 @@ use env_logger::init;
 use failure::Fallible;
 use log::{error, info, warn};
 use std::net::SocketAddrV4;
+use std::sync::Arc;
 use std::thread::sleep;
+use std::thread::spawn;
 use std::time::Duration;
 use structopt::StructOpt;
 use xtp::{
@@ -45,7 +47,6 @@ fn main() -> Fallible<()> {
     api.set_heart_beat_interval(10);
     api.set_udp_buffer_size(1024);
 
-
     api.login(
         args.server_addr,
         &args.username,
@@ -58,25 +59,46 @@ fn main() -> Fallible<()> {
         "600004", "600010", "600871", "600861", "600855", "600816", "600817", "600818", "600819",
         "600820", "600821", "600822", "600823", "600824", "600825", "600826", "600827", "600710",
         "600711", "600712", "600713", "600714", "600715", "600716", "600717", "600718", "600719",
-        "600720", "6007211",
+        "600720", "600721",
     ];
     let codes_sz = [
         "000001", "000002", "000006", "000007", "000008", "300339", "300380", "000977", "300001",
         "000016", "300180",
     ];
 
-    api.subscribe_market_data(&codes_sh, XTPExchangeType::SH)
+    let a = Arc::new(api);
+
+    let mut v = vec![];
+    for code in codes_sh.iter() {
+        let a = a.clone();
+        let code = code.to_string();
+        let h = spawn(
+            move || match a.subscribe_market_data(&[&code], XTPExchangeType::SH) {
+                Ok(_) => info!("Subscribe {} success", code),
+                Err(e) => error!("Subscribe {} Failed: {}", code, e),
+            },
+        );
+        v.push(h);
+    }
+    for code in codes_sz.iter() {
+        let a = a.clone();
+        let code = code.to_string();
+        let h = spawn(
+            move || match a.subscribe_market_data(&[&code], XTPExchangeType::SZ) {
+                Ok(_) => info!("Subscribe {} success", code),
+                Err(e) => error!("Subscribe {} Failed: {}", code, e),
+            },
+        );
+        v.push(h);
+    }
+
+    v.into_iter()
+        .map(|h| h.join())
+        .collect::<Result<Vec<_>, _>>()
         .unwrap();
-    api.subscribe_market_data(&codes_sz, XTPExchangeType::SZ)
-        .unwrap();
-    api.subscribe_tick_by_tick(&["600018", "600021"], XTPExchangeType::SH)?;
 
     sleep(Duration::from_secs(10));
-
-    api.logout()?;
-
-    sleep(Duration::from_secs(5));
-
+    a.logout()?;
     Ok(())
 }
 
