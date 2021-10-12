@@ -692,7 +692,7 @@ impl<'a> From<&'a XTPOrderInsertInfo> for sys::XTPOrderInsertInfo {
     fn from(r: &'a XTPOrderInsertInfo) -> sys::XTPOrderInsertInfo {
         let union = unsafe {
             XTPOrderInsertInfo__bindgen_ty_1 {
-                u32: __BindgenUnionField::new(),
+                u32_: __BindgenUnionField::new(),
                 __bindgen_anon_1: __BindgenUnionField::new(),
                 bindgen_union_field: transmute::<_, u32>((
                     XTP_SIDE_TYPE::from(r.side),
