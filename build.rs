@@ -26,17 +26,18 @@ fn main() {
         // The input header we would like to generate
         // bindings for.
         .header("src/wrapper.hpp")
+        .derive_default(true)
         /* // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks)) */
         .ignore_methods()
         .rustified_enum(".*")
-        .blacklist_item("XTP_SIDE_TYPE")
-        .blacklist_item("XTP_POSITION_EFFECT_TYPE")
-        .blacklist_item("TXTPTradeTypeType")
-        .blacklist_item("TXTPOrderTypeType")
-        .blacklist_function("TraderSpiStub_Rust.*")
-        .blacklist_function("QuoteSpiStub_Rust.*")
+        .blocklist_item("XTP_SIDE_TYPE")
+        .blocklist_item("XTP_POSITION_EFFECT_TYPE")
+        .blocklist_item("TXTPTradeTypeType")
+        .blocklist_item("TXTPOrderTypeType")
+        .blocklist_function("TraderSpiStub_Rust.*")
+        .blocklist_function("QuoteSpiStub_Rust.*")
         /* .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: true,
         }) */
@@ -47,12 +48,19 @@ fn main() {
 
     // Write the bindings to the $OUT_DIR/bindings.rs file.
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
-    bindings.write_to_file(out_path.join("bindings.rs")).expect("Couldn't write bindings!");
+    println!("out path{:#?}", out_path);
+
+    bindings
+        .write_to_file(out_path.join("bindings.rs"))
+        .expect("Couldn't write bindings!");
 }
 
 #[cfg(not(target_os = "windows"))]
 fn add_search_path() {
-    for path in std::env::var("LD_LIBRARY_PATH").unwrap_or_else(|_| "".to_string()).split(":") {
+    for path in std::env::var("LD_LIBRARY_PATH")
+        .unwrap_or_else(|_| "".to_string())
+        .split(":")
+    {
         if path.trim().len() == 0 {
             continue;
         }
@@ -62,7 +70,10 @@ fn add_search_path() {
 
 #[cfg(target_os = "windows")]
 fn add_search_path() {
-    for path in std::env::var("PATH").unwrap_or_else(|_| "".to_string()).split(";") {
+    for path in std::env::var("PATH")
+        .unwrap_or_else(|_| "".to_string())
+        .split(";")
+    {
         if path.trim().len() == 0 {
             continue;
         }
