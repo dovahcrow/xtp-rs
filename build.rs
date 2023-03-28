@@ -42,7 +42,6 @@ fn main() {
             non_exhaustive: true,
         }) */
         // Finish the builder and generate the bindings.
-        
         .generate()
         // Unwrap the Result and panic on failure.
         .expect("Unable to generate bindings");

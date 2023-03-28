@@ -10,8 +10,7 @@ use crate::sys::{
     XTP_POSITION_DIRECTION_TYPE, XTP_POSITION_EFFECT_TYPE, XTP_PRICE_TYPE, XTP_PROTOCOL_TYPE,
     XTP_SIDE_TYPE, XTP_SPLIT_MERGE_STATUS, XTP_TBT_TYPE, XTP_TE_RESUME_TYPE, XTP_TICKER_TYPE,
 };
-use std::fmt::Formatter;
-use std::fmt::Debug;
+
 use libc::c_char;
 use std::ffi::CStr;
 use std::mem::transmute;
@@ -430,6 +429,7 @@ pub enum XTPTbtType {
     ENTRUST = XTP_TBT_TYPE::XTP_TBT_ENTRUST as u32,
     /// 逐笔成交
     TRADE = XTP_TBT_TYPE::XTP_TBT_TRADE as u32,
+    STATE = XTP_TBT_TYPE::XTP_TBT_STATE as u32,
 }
 impl_ffi_convert!(XTPTbtType, XTP_TBT_TYPE, 1, 2);
 
@@ -542,29 +542,6 @@ impl<'a> FromRaw<&'a XTPOB> for OrderBookStruct {
     }
 }
 
-// #[derive(Clone, Debug)]
-// pub struct XTPTickByTickEntrust {
-//     pub channel_no: i32,
-//     ///SH: 委托序号(委托单独编号, 同一channel_no内连续)
-//     ///SZ: 委托序号(委托成交统一编号, 同一channel_no内连续)
-//     pub seq: i64,
-//     ///委托价格
-//     pub price: f64,
-//     ///SH: 剩余委托数量(balance)
-//     ///SZ: 委托数量
-//     pub qty: i64,
-//     ///SH: 'B':买; 'S':卖
-//     ///SZ: '1':买; '2':卖; 'G':借入; 'F':出借
-//     pub side: String,
-//     ///SH: 'A': 增加; 'D': 删除
-//     ///SZ: 订单类别: '1': 市价; '2': 限价; 'U': 本方最优
-//     pub ord_type: String,
-//     ///SH: 原始订单号
-//     ///SZ: 无意义
-//     pub order_no: i64,
-
-// }
-
 #[derive(Clone, Debug)]
 pub struct XTPTickByTickStruct {
     pub exchange_id: XTPExchangeType,
@@ -572,25 +549,13 @@ pub struct XTPTickByTickStruct {
     pub seq: i64,
     pub data_time: i64,
     pub r#type: XTPTbtType,
-    pub v: XTPTickByTickStruct__bindgen_ty_1
-}
-
-impl Debug for XTPTickByTickStruct__bindgen_ty_1{
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result{
-        unsafe{
-            f.debug_struct("XTPTickByTickStruct__bindgen_ty_1")
-            .field("entrust", &self.entrust)
-            .field("trade", &self.trade)
-            .finish()
-        }
-
-    }
+    pub data: XTPTickByTickStruct__bindgen_ty_1,
 }
 
 impl<'a> FromRaw<&'a XTPTBT> for XTPTickByTickStruct {
     unsafe fn from_raw(tbt: &'a XTPTBT) -> Self {
-        let ux = match XTPTbtType::from_raw(tbt.type_) {
-            XTPTbtType::ENTRUST => unsafe{
+        let union = match XTPTbtType::from_raw(tbt.type_) {
+            XTPTbtType::ENTRUST => unsafe {
                 XTPTickByTickStruct__bindgen_ty_1 {
                     entrust: XTPTickByTickEntrust {
                         channel_no: tbt.__bindgen_anon_1.entrust.channel_no,
@@ -613,29 +578,40 @@ impl<'a> FromRaw<&'a XTPTBT> for XTPTickByTickStruct {
                         order_no: tbt.__bindgen_anon_1.entrust.order_no,
                     },
                 }
-            }
-            XTPTbtType::TRADE => unsafe{ XTPTickByTickStruct__bindgen_ty_1 {
-                trade: XTPTickByTickTrade {
-                    channel_no: tbt.__bindgen_anon_1.trade.channel_no,
-                    seq: tbt.__bindgen_anon_1.trade.seq,
-                    price: tbt.__bindgen_anon_1.trade.price,
-                    qty: tbt.__bindgen_anon_1.trade.qty,
-                    money: tbt.__bindgen_anon_1.trade.money,
-                    bid_no: tbt.__bindgen_anon_1.trade.bid_no,
-                    ask_no: tbt.__bindgen_anon_1.trade.ask_no,
-                    trade_flag: tbt.__bindgen_anon_1.trade.trade_flag,
-                },
-            }
-            }
+            },
+            XTPTbtType::TRADE => unsafe {
+                XTPTickByTickStruct__bindgen_ty_1 {
+                    trade: XTPTickByTickTrade {
+                        channel_no: tbt.__bindgen_anon_1.trade.channel_no,
+                        seq: tbt.__bindgen_anon_1.trade.seq,
+                        price: tbt.__bindgen_anon_1.trade.price,
+                        qty: tbt.__bindgen_anon_1.trade.qty,
+                        money: tbt.__bindgen_anon_1.trade.money,
+                        bid_no: tbt.__bindgen_anon_1.trade.bid_no,
+                        ask_no: tbt.__bindgen_anon_1.trade.ask_no,
+                        trade_flag: tbt.__bindgen_anon_1.trade.trade_flag,
+                    },
+                }
+            },
+            // <逐笔状态订单，2.2.32版本新增字段，为上海新债券Level2行情中独有
+            XTPTbtType::STATE => unsafe {
+                XTPTickByTickStruct__bindgen_ty_1 {
+                    state: XTPTickByTickStatus {
+                        channel_no: tbt.__bindgen_anon_1.state.channel_no,
+                        seq: tbt.__bindgen_anon_1.state.seq,
+                        flag: tbt.__bindgen_anon_1.state.flag,
+                    },
+                }
+            },
         };
-        println!("ux: {:?}", ux);
+
         XTPTickByTickStruct {
             exchange_id: XTPExchangeType::from_raw(tbt.exchange_id),
             ticker: FromCBuf::from_c_buf(tbt.ticker.as_ref()),
             seq: tbt.seq,
             data_time: tbt.data_time,
             r#type: XTPTbtType::from_raw(tbt.type_),
-            v: ux
+            data: union,
         }
     }
 }

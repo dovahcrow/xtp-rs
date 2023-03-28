@@ -3,7 +3,8 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 #![allow(clippy::all)]
-
+use std::fmt::Debug;
+use std::fmt::Formatter;
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 // We are not generating these (enum) types through bindgen since their variants are defined in macro
@@ -83,5 +84,17 @@ impl Drop for QuoteSpiStub {
 impl Drop for TraderSpiStub {
     fn drop(&mut self) {
         unreachable!("TraderSpiStub should be manually dropped!")
+    }
+}
+
+impl Debug for XTPTickByTickStruct__bindgen_ty_1 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        unsafe {
+            f.debug_struct("XTPTickByTickStruct__bindgen_ty_1")
+                .field("entrust", &self.entrust)
+                .field("trade", &self.trade)
+                .field("state", &self.state)
+                .finish()
+        }
     }
 }
