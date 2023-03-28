@@ -39,8 +39,8 @@ fn main() -> Fallible<()> {
 
     let mut api = QuoteApi::new(1, &args.path, XTPLogLevel::Trace);
 
-    info!("XTP Version: {:?}", api.get_api_version());
-    info!("Trading Day: {:?}", api.get_trading_day());
+    println!("XTP Version: {:?}", api.get_api_version());
+    println!("Trading Day: {:?}", api.get_trading_day());
 
     api.register_spi(MySpi);
 
@@ -55,7 +55,7 @@ fn main() -> Fallible<()> {
     )?;
     let codes_sh = [
         "600036", "600000", "600001", "600018", "600009", "510050", "688300", "688310", "688100",
-        "603777", "600570", "600030", "600019", "601519", "399905", "603050", "600001", "600002",
+        "603777", "600570", "600030", "600019", "601519", "603050", "600001", "600002",
         "600004", "600010", "600871", "600861", "600855", "600816", "600817", "600818", "600819",
         "600820", "600821", "600822", "600823", "600824", "600825", "600826", "600827", "600710",
         "600711", "600712", "600713", "600714", "600715", "600716", "600717", "600718", "600719",
@@ -73,8 +73,8 @@ fn main() -> Fallible<()> {
         let a = a.clone();
         let code = code.to_string();
         let h = spawn(
-            move || match a.subscribe_market_data(&[&code], XTPExchangeType::SH) {
-                Ok(_) => info!("Subscribe {} success", code),
+            move || match a.subscribe_tick_by_tick(&[&code], XTPExchangeType::SH) {
+                Ok(_) => println!("Subscribe {} success", code),
                 Err(e) => error!("Subscribe {} Failed: {}", code, e),
             },
         );
@@ -84,8 +84,8 @@ fn main() -> Fallible<()> {
         let a = a.clone();
         let code = code.to_string();
         let h = spawn(
-            move || match a.subscribe_market_data(&[&code], XTPExchangeType::SZ) {
-                Ok(_) => info!("Subscribe {} success", code),
+            move || match a.subscribe_tick_by_tick(&[&code], XTPExchangeType::SZ) {
+                Ok(_) => println!("Subscribe {} success", code),
                 Err(e) => error!("Subscribe {} Failed: {}", code, e),
             },
         );
@@ -114,18 +114,18 @@ impl QuoteSpi for MySpi {
     }
 
     fn on_sub_market_data(&self, ticker: XTPST, error_info: XTPRI, is_last: bool) {
-        info!(
+        println!(
             "Sub Market Data: {:?}: {:?} {}",
             ticker, error_info, is_last
         );
     }
 
     fn on_sub_order_book(&self, ticker: XTPST, error_info: XTPRI, is_last: bool) {
-        info!("Sub Orderbook: {:?}: {:?} {}", ticker, error_info, is_last);
+        println!("Sub Orderbook: {:?}: {:?} {}", ticker, error_info, is_last);
     }
 
     fn on_sub_tick_by_tick(&self, ticker: XTPST, error_info: XTPRI, is_last: bool) {
-        info!(
+        println!(
             "Sub Tick By Tick: {:?}: {:?} {}",
             ticker, error_info, is_last
         );
@@ -139,16 +139,18 @@ impl QuoteSpi for MySpi {
         ask1_qty: &[i64],
         max_ask1_count: i32,
     ) {
-        info!(
+        println!(
             "Market Depth: {:?}, {:?}, {}, {:?}, {}",
             market_data, bid1_qty, max_bid1_count, ask1_qty, max_ask1_count
         );
     }
     fn on_tick_by_tick(&self, tbt_data: XTPTickByTickStruct) {
-        info!("Tick by tick: {:?}", tbt_data);
+        println!("Tick by tick: {:?}", tbt_data);
     }
 
     fn on_order_book(&self, ob: OrderBookStruct) {
-        info!("Orderbook: {:?}", ob);
+        println!("Orderbook: {:?}", ob);
     }
+
+  
 }
